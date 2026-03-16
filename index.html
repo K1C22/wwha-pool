@@ -1,186 +1,103 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<title>WWHA - Connexion</title>
-
 <style>
 
+/* Charger la police Aptos Italic */
+@font-face {
+    font-family: 'Aptos';
+    src: url('Aptos-Italic.woff2') format('woff2'),
+         url('Aptos-Italic.woff') format('woff'),
+         url('Aptos-Italic.ttf') format('truetype');
+    font-style: italic;
+    font-weight: normal;
+}
+
 body{
-font-family: Arial, Helvetica, sans-serif;
-background:#efefef;
-display:flex;
-align-items:center;
-justify-content:center;
-height:100vh;
-margin:0;
+    font-family: 'Aptos', Arial, Helvetica, sans-serif;
+    font-style: italic;
+    background:#efefef;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+    margin:0;
 }
 
 .login-container{
-background:white;
-padding:40px;
-width:360px;
-border-radius:12px;
-box-shadow:0 10px 25px rgba(0,0,0,0.15);
-display:flex;
-flex-direction:column;
+    background:white;
+    padding:40px;
+    width:360px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.15);
+    display:flex;
+    flex-direction:column;
 }
 
 .logo{
-width:150px;
-margin:auto;
-margin-bottom:25px;
-opacity:0.35;
+    width:150px;
+    margin:auto;
+    margin-bottom:25px;
+    opacity:0.35;
 }
 
 label{
-font-size:12px;
-letter-spacing:1px;
-margin-top:10px;
-margin-bottom:6px;
-font-weight:bold;
-}
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<title>WWHA - Connexion</title>
-
-<style>
-
-body{
-font-family: Arial, Helvetica, sans-serif;
-background:#efefef;
-display:flex;
-align-items:center;
-justify-content:center;
-height:100vh;
-margin:0;
-}
-
-.login-container{
-background:white;
-padding:40px;
-width:360px;
-border-radius:12px;
-box-shadow:0 10px 25px rgba(0,0,0,0.15);
-display:flex;
-flex-direction:column;
-}
-
-.logo{
-width:150px;
-margin:auto;
-margin-bottom:25px;
-opacity:0.35;
-}
-
-label{
-font-size:12px;
-letter-spacing:1px;
-margin-top:10px;
-margin-bottom:6px;
-font-weight:bold;
+    font-size:12px;
+    letter-spacing:1px;
+    margin-top:10px;
+    margin-bottom:6px;
+    font-weight:bold;
 }
 
 input{
-width:100%;
-padding:12px;
-border-radius:8px;
-border:2px solid #222;
-font-size:14px;
-box-sizing:border-box;
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:2px solid #222;
+    font-size:14px;
+    box-sizing:border-box;
 }
 
 .password-field{
-position:relative;
+    position:relative;
 }
 
 .eye{
-position:absolute;
-right:12px;
-top:50%;
-transform:translateY(-50%);
-cursor:pointer;
-opacity:0.6;
+    position:absolute;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%);
+    cursor:pointer;
+    opacity:0.6;
 }
 
 .remember{
-margin-top:15px;
-display:flex;
-align-items:center;
-gap:8px;
-font-size:14px;
+    margin-top:15px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:14px;
 }
 
 .login-btn{
-margin-top:20px;
-background:#1f5cc4;
-color:white;
-border:none;
-padding:14px;
-border-radius:8px;
-font-weight:bold;
-letter-spacing:1px;
-cursor:pointer;
+    margin-top:20px;
+    background:#1f5cc4;
+    color:white;
+    border:none;
+    padding:14px;
+    border-radius:8px;
+    font-weight:bold;
+    letter-spacing:1px;
+    cursor:pointer;
 }
 
 .login-btn:hover{
-background:#17479a;
+    background:#17479a;
 }
 
 .forgot{
-text-align:center;
-margin-top:20px;
-font-size:14px;
-color:#666;
-cursor:pointer;
+    text-align:center;
+    margin-top:20px;
+    font-size:14px;
+    color:#666;
+    cursor:pointer;
 }
 
 </style>
-
-</head>
-
-<body>
-
-<div class="login-container">
-
-<img src="https://raw.githubusercontent.com/ton-utilisateur/ton-depot/main/WWHA13b.png" class="logo">
-
-<label>IDENTIFIANT</label>
-<input type="text" placeholder="Votre identifiant">
-
-<label>MOT DE PASSE</label>
-
-<div class="password-field">
-<input id="password" type="password" placeholder="Votre mot de passe">
-<span class="eye" onclick="toggle()">👁</span>
-</div>
-
-<div class="remember">
-<input type="checkbox">
-<span>Se souvenir du GM</span>
-</div>
-
-<button class="login-btn">CONNEXION</button>
-
-<div class="forgot">Mot de passe oublié?</div>
-
-</div>
-
-<script>
-
-function toggle(){
-let p=document.getElementById("password")
-
-if(p.type==="password"){
-p.type="text"
-}else{
-p.type="password"
-}
-}
-
-</script>
-
-</body>
-</html>
