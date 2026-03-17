@@ -51,31 +51,34 @@ input[type="password"]{
     box-shadow:0 4px 4px rgba(0,0,0,0.15);
 }
 
-/* FIX CHECKBOX & TEXT CENTERING */
-.checkbox-group {
+/* CENTRAGE CHECKBOX */
+.remember-group {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    width: 60%; /* Aligné sur la largeur des inputs */
     margin-bottom: 20px;
-    gap: 10px;
-    font-size: 14px;
-    cursor: pointer;
-    user-select: none;
+    gap: 8px;
 }
 
-input[type="checkbox"]{
-    width: 18px;
-    height: 18px;
+.remember-group input {
+    width: auto;
     margin: 0;
+    box-shadow: none;
     cursor: pointer;
+}
+
+.remember-group label {
+    font-size: 10pt;
+    cursor: pointer;
+    white-space: nowrap;
 }
 
 button {
     background: #fc723f;
     color: #000000;
     border: none;
-    padding: 10px 25px;
+    padding: 10px 20px;
     border-radius: 2px;
     cursor: pointer;
     font-size: 10pt;
@@ -84,9 +87,7 @@ button {
 }
 
 /* APP */
-#app{
-    display:none;
-}
+#app{ display:none; }
 
 .header{
     background:#FFFFFF;
@@ -102,16 +103,9 @@ button {
     align-items:center;
 }
 
-.header h1{
-    margin:0;
-    font-size:20pt;
-    font-weight:bold;
-}
+.header h1{ margin:0; font-size:20pt; font-weight:bold; }
 
-#usernameDisplay{
-    font-size:12pt;
-    font-weight:bold;
-}
+#usernameDisplay{ font-size:12pt; font-weight:bold; }
 
 #logoutBtn{
     background:#F5F5F5;
@@ -141,10 +135,7 @@ button {
     font-weight:bold;
 }
 
-.navbar div.active,
-.navbar div:hover{
-    background:#fc723f;
-}
+.navbar div.active, .navbar div:hover{ background:#fc723f; }
 
 .subnav{
     margin-top:0;
@@ -163,28 +154,13 @@ button {
     font-weight:bold;
 }
 
-.subnav div.active{
-    background:#fc723f;
-}
+.subnav div.active{ background:#fc723f; }
 
-.content{
-    padding:20px;
-}
+.content{ padding:20px; }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-th {
-    background: #f8f8f8;
-    padding: 10px;
-    text-align: left;
-    border-bottom: 2px solid #fc723f;
-}
-td {
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-}
+table { width: 100%; border-collapse: collapse; }
+th { background: #f8f8f8; padding: 10px; text-align: left; border-bottom: 2px solid #fc723f; }
+td { padding: 8px; border-bottom: 1px solid #eee; }
 </style>
 </head>
 <body>
@@ -195,10 +171,10 @@ td {
         <input type="text" placeholder="Identifiant" id="usernameInput">
         <input type="password" placeholder="Mot de passe">
 
-        <label class="checkbox-group">
-            <input type="checkbox" id="rememberMe"> 
-            <span>Se souvenir de moi</span>
-        </label>
+        <div class="remember-group">
+            <input type="checkbox" id="rememberMe">
+            <label for="rememberMe">Se souvenir de moi</label>
+        </div>
 
         <button onclick="login()">Connexion</button>
     </div>
@@ -285,33 +261,32 @@ function sub(type){
 
 async function loadNHLPlayers(){
     const content = document.getElementById("subcontent");
-    content.innerHTML = "Chargement des données en cours...";
+    content.innerHTML = "Chargement des statistiques NHL...";
     
-    // On utilise un proxy public pour éviter l'erreur CORS
-    const proxy = "https://corsproxy.io/?";
-    const target = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=50";
+    // URL alternative plus permissive (AllSkaters 2025-2026)
+    const url = "https://api.nhle.com/stats/rest/en/skater/summary?isAggregate=false&isGame=false&sort=%5B%7B%22property%22%3A%22points%22%2C%22direction%22%3A%22DESC%22%7D%2C%7B%22property%22%3A%22goals%22%2C%22direction%22%3A%22DESC%22%7D%5D&start=0&limit=50&factCayenneExp=gamesPlayed%3E=1&cayenneExp=gameTypeId=2%20and%20seasonId%3C=20252026%20and%20seasonId%3E=20252026";
 
     try {
-        const res = await fetch(proxy + encodeURIComponent(target));
+        const res = await fetch(url);
         if(!res.ok) throw new Error();
-        const data = await res.json();
-        const players = data.points;
+        const json = await res.json();
+        const players = json.data;
 
         let html = `<table><tr><th>Nom</th><th>Équipe</th><th>PJ</th><th>B</th><th>A</th><th>PTS</th></tr>`;
         players.forEach(p => {
             html += `<tr>
-                <td>${p.firstName.default} ${p.lastName.default}</td>
-                <td>${p.teamAbbrev}</td>
-                <td>${p.gamesPlayed}</td>
-                <td>${p.goals}</td>
-                <td>${p.assists}</td>
-                <td style="font-weight:bold; color:#fc723f;">${p.value}</td>
+                <td style="font-weight:500;">${p.skaterFullName}</td>
+                <td>${p.teamAbbrevs}</td>
+                <td style="text-align:center;">${p.gamesPlayed}</td>
+                <td style="text-align:center;">${p.goals}</td>
+                <td style="text-align:center;">${p.assists}</td>
+                <td style="font-weight:bold; color:#fc723f; text-align:center;">${p.points}</td>
             </tr>`;
         });
         html += `</table>`;
         content.innerHTML = html;
     } catch(e) {
-        content.innerHTML = "<div style='color:red;'>Erreur de connexion aux serveurs NHL. Réessayez dans quelques instants.</div>";
+        content.innerHTML = "<div style='color:red;'>Connexion impossible. Si vous êtes sur un ordinateur, essayez d'ouvrir ce fichier via un serveur local ou désactivez temporairement les extensions de blocage.</div>";
     }
 }
 </script>
