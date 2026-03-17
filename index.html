@@ -1,285 +1,362 @@
-à<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>PNHL</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNHL - Administration & Pool</title>
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Aptos:ital,wght@0,400;1,400&display=swap');
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Aptos:ital,wght@0,400;1,400&display=swap');
 
-*{
-    font-family:'Aptos', sans-serif;
-    box-sizing: border-box;
-}
+        * {
+            font-family: 'Aptos', sans-serif;
+            box-sizing: border-box;
+        }
 
-body{
-    margin:0;
-    background:#FFFFFF;
-}
+        body {
+            margin: 0;
+            background: #FFFFFF;
+            color: #333;
+        }
 
-/* LOGIN */
-#loginPage{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    height:100vh;
-}
+        /* LOGIN PAGE */
+        #loginPage {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: #f5f5f5;
+        }
 
-.login-container{
-    background:#FFFFFF;
-    padding:20px;
-    width:360px;
-    border-radius:2px;
-    box-shadow:0 10px 15px rgba(0,0,0,0.15);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-}
+        .login-container {
+            background: #FFFFFF;
+            padding: 30px;
+            width: 380px;
+            border-radius: 4px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-.logo{
-    width:300px;
-    margin-bottom:50px;
-}
+        .logo {
+            width: 220px;
+            margin-bottom: 40px;
+        }
 
-input[type="text"], 
-input[type="password"]{
-    width:60%;
-    padding:12px;
-    border-radius:2px;
-    border:2px solid #F5F5F5;
-    margin-bottom:20px;
-    box-shadow:0 4px 4px rgba(0,0,0,0.15);
-}
+        input[type="text"], 
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            font-size: 11pt;
+        }
 
-/* CENTRAGE CHECKBOX */
-.remember-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    gap: 8px;
-    margin-bottom: 20px;
-    cursor: pointer;
-}
+        .remember-container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            gap: 10px;
+            margin-bottom: 25px;
+            cursor: pointer;
+            font-size: 10pt;
+        }
 
-.remember-container input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    margin: 0;
-    cursor: pointer;
-}
+        button.btn-login {
+            background: #fc723f;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11pt;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
 
-.remember-container span {
-    font-size: 10pt;
-    color: #333;
-}
+        button.btn-login:hover { background: #e05626; }
 
-button {
-    background: #fc723f;
-    color: #000000;
-    border: none;
-    padding: 10px 25px;
-    border-radius: 2px;
-    cursor: pointer;
-    font-size: 10pt;
-    font-weight: bold;
-    box-shadow:0 4px 4px rgba(0,0,0,0.15);
-}
+        /* APP LAYOUT */
+        #app { display: none; }
 
-/* APP */
-#app{ display:none; }
+        .header {
+            background: #FFFFFF;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
 
-.header{
-    background:#FFFFFF;
-    padding:10px 20px;
-    display:flex;
-    flex-direction:column;
-    box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
+        .header h1 { margin: 0; font-size: 18pt; color: #fc723f; }
 
-.header-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
+        #logoutBtn {
+            background: #eee;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 9pt;
+        }
 
-.header h1{ margin:0; font-size:20pt; font-weight:bold; }
-#usernameDisplay{ font-size:12pt; font-weight:bold; }
+        /* NAVIGATION */
+        .navbar-container {
+            background: #fff;
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            border-bottom: 1px solid #eee;
+        }
 
-#logoutBtn{
-    background:#F5F5F5;
-    border:1px solid #F5F5F5;
-    padding:6px 12px;
-    border-radius:2px;
-    cursor:pointer;
-}
+        .navbar, .subnav {
+            display: flex;
+            gap: 5px;
+            width: 85%;
+            background: #f8f8f8;
+            padding: 5px;
+            border-radius: 4px;
+        }
 
-/* NAVBARS RÉDUITES DE 20% (Largeur 80%) */
-.navbar-container{
-    background:#FFFFFF;
-    padding:10px 20px;
-    display: flex;
-    justify-content: center;
-}
+        .navbar div, .subnav div {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 10pt;
+            border-radius: 3px;
+            transition: 0.2s;
+        }
 
-.navbar, .subnav {
-    background:#F0F0F0;
-    display:flex;
-    gap:6px;
-    padding:4px;
-    width: 80%; /* Largeur réduite de 20% */
-}
+        .navbar div.active, .subnav div.active {
+            background: #fc723f;
+            color: white;
+        }
 
-.navbar div, .subnav div{
-    flex:1;
-    text-align:center;
-    padding:10px;
-    cursor:pointer;
-    font-weight:bold;
-}
+        /* TABLES & CONTENT */
+        .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
 
-.navbar div.active, .navbar div:hover,
-.subnav div.active, .subnav div:hover { 
-    background:#fc723f; 
-}
+        .search-bar {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
 
-.content{ padding:20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { 
+            text-align: left; 
+            padding: 12px; 
+            border-bottom: 2px solid #fc723f; 
+            background: #fafafa;
+            font-size: 9pt;
+            text-transform: uppercase;
+        }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 10pt; }
 
-table { width: 100%; border-collapse: collapse; }
-th { background: #f8f8f8; padding: 10px; text-align: left; border-bottom: 2px solid #fc723f; }
-td { padding: 8px; border-bottom: 1px solid #eee; }
-</style>
+        .team-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .team-logo { width: 24px; height: 24px; }
+
+        .stats-val { text-align: center; font-family: monospace; }
+    </style>
 </head>
 <body>
 
 <div id="loginPage">
     <div class="login-container">
-        <img src="https://raw.githubusercontent.com/K1C22/wwha-pool/main/WWHA13b.png" class="logo">
+        <img src="https://raw.githubusercontent.com/K1C22/wwha-pool/main/WWHA13b.png" class="logo" alt="PNHL Logo">
         <input type="text" placeholder="Identifiant" id="usernameInput">
-        <input type="password" placeholder="Mot de passe">
+        <input type="password" placeholder="Mot de passe" id="passwordInput">
 
         <label class="remember-container">
             <input type="checkbox" id="rememberMe">
             <span>Se souvenir de moi</span>
         </label>
 
-        <button onclick="login()">Connexion</button>
+        <button class="btn-login" onclick="login()">CONNEXION</button>
     </div>
 </div>
 
 <div id="app">
     <div class="header">
-        <div class="header-top">
+        <div>
             <h1>PNHL</h1>
-            <button id="logoutBtn" onclick="logout()">Déconnexion</button>
+            <div id="usernameDisplay" style="font-size: 9pt; color: #666;"></div>
         </div>
-        <div id="usernameDisplay"></div>
+        <button id="logoutBtn" onclick="logout()">Déconnexion</button>
     </div>
 
     <div class="navbar-container">
         <div class="navbar">
-            <div onclick="show('vestiaire')">Vestiaire</div>
-            <div onclick="show('classement')">Classement</div>
-            <div onclick="show('recrutement')">Recrutement</div>
-            <div onclick="show('reglements')">Règlements</div>
-            <div onclick="show('histoire')">Histoire</div>
+            <div onclick="show('vestiaire')">VESTIAIRE</div>
+            <div onclick="show('classement')">CLASSEMENT</div>
+            <div onclick="show('recrutement')">RECRUTEMENT</div>
+            <div onclick="show('reglements')">RÈGLEMENTS</div>
+            <div onclick="show('histoire')">HISTOIRE</div>
         </div>
     </div>
 
-    <div class="content" id="content"></div>
-</div>
-
-<script>
-function login(){
-    const username = document.getElementById("usernameInput").value;
-    const remember = document.getElementById("rememberMe").checked;
-    if(username.trim()===""){ alert("Veuillez entrer un identifiant."); return; }
-    if(remember){ localStorage.setItem("pnhl_user", username); } 
-    else { localStorage.removeItem("pnhl_user"); }
-    document.getElementById("loginPage").style.display="none";
-    document.getElementById("app").style.display="block";
-    document.getElementById("usernameDisplay").textContent = username;
-    show('vestiaire');
-}
-
-function logout(){
-    document.getElementById("app").style.display="none";
-    document.getElementById("loginPage").style.display="flex";
-    localStorage.removeItem("pnhl_user");
-}
-
-window.onload=function(){
-    const saved=localStorage.getItem("pnhl_user");
-    if(saved){
-        document.getElementById("usernameInput").value=saved;
-        document.getElementById("rememberMe").checked=true;
-        login();
-    }
-};
-
-function show(page){
-    const tabs=document.querySelectorAll(".navbar div");
-    tabs.forEach(t=>t.classList.remove("active"));
-    const active=Array.from(tabs).find(t=>t.textContent.toLowerCase().includes(page));
-    if(active) active.classList.add("active");
-
-    // Centrage du subnav dans le content
-    document.getElementById("content").innerHTML=`
+    <div class="content">
         <div style="display:flex; justify-content:center; width:100%;">
             <div class="subnav" id="subnav"></div>
         </div>
         <div id="subcontent" style="margin-top:20px;"></div>
-    `;
+    </div>
+</div>
 
-    const subnav=document.getElementById("subnav");
-    if(page==="vestiaire"){
-        subnav.innerHTML=`<div onclick="sub('chambre')">Chambre</div><div onclick="sub('contrats')">Contrats</div>`;
-    } else if(page==="recrutement"){
-        subnav.innerHTML=`<div onclick="sub('echange')">Échange</div><div onclick="sub('joueur')">Joueur autonome</div>`;
+<script>
+let allPlayers = []; // Stockage global pour la recherche
+
+function login() {
+    const username = document.getElementById("usernameInput").value;
+    const remember = document.getElementById("rememberMe").checked;
+    
+    if (username.trim() === "") { alert("Veuillez entrer un identifiant."); return; }
+    
+    if (remember) { localStorage.setItem("pnhl_user", username); } 
+    else { localStorage.removeItem("pnhl_user"); }
+    
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("usernameDisplay").textContent = "Connecté en tant que : " + username;
+    show('vestiaire');
+}
+
+function logout() {
+    document.getElementById("app").style.display = "none";
+    document.getElementById("loginPage").style.display = "flex";
+    localStorage.removeItem("pnhl_user");
+}
+
+window.onload = function() {
+    const saved = localStorage.getItem("pnhl_user");
+    if (saved) {
+        document.getElementById("usernameInput").value = saved;
+        document.getElementById("rememberMe").checked = true;
+        login();
+    }
+};
+
+function show(page) {
+    const tabs = document.querySelectorAll(".navbar div");
+    tabs.forEach(t => t.classList.remove("active"));
+    const active = Array.from(tabs).find(t => t.textContent.toLowerCase().includes(page));
+    if (active) active.classList.add("active");
+
+    const subnav = document.getElementById("subnav");
+    const subcontent = document.getElementById("subcontent");
+    subcontent.innerHTML = "";
+
+    if (page === "vestiaire") {
+        subnav.innerHTML = `<div onclick="sub('chambre')">Chambre</div><div onclick="sub('contrats')">Contrats</div>`;
+        sub('chambre');
+    } else if (page === "recrutement") {
+        subnav.innerHTML = `<div onclick="sub('echange')">Échange</div><div onclick="sub('joueur')">Joueurs NHL</div>`;
+        sub('joueur');
+    } else {
+        subnav.innerHTML = "";
+        subcontent.innerHTML = `<p>Section ${page} en cours de développement.</p>`;
     }
 }
 
-function sub(type){
-    const subs=document.querySelectorAll(".subnav div");
-    subs.forEach(s=>s.classList.remove("active"));
-    const clicked=Array.from(subs).find(s=>s.textContent.toLowerCase().includes(type));
-    if(clicked) clicked.classList.add("active");
+function sub(type) {
+    const subs = document.querySelectorAll(".subnav div");
+    subs.forEach(s => s.classList.remove("active"));
+    const clicked = Array.from(subs).find(s => s.textContent.toLowerCase().includes(type));
+    if (clicked) clicked.classList.add("active");
 
-    if(type==="joueur") loadNHLPlayers();
-    else document.getElementById("subcontent").innerHTML = "";
+    if (type === "joueur") {
+        loadNHLPlayers();
+    } else {
+        document.getElementById("subcontent").innerHTML = `<p>Contenu de ${type} à venir...</p>`;
+    }
 }
 
-async function loadNHLPlayers(){
+async function loadNHLPlayers() {
     const content = document.getElementById("subcontent");
-    content.innerHTML = "Récupération des données NHL...";
+    content.innerHTML = "<p>Chargement des statistiques NHL en direct...</p>";
     
-    // Retour à l'API Web Leaders qui est plus stable sur Replit
-    const url = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=50";
+    const url = "https://api-web.nhle.com/v1/skater-stats-now";
 
     try {
         const res = await fetch(url);
-        if(!res.ok) throw new Error();
         const json = await res.json();
+        allPlayers = json.data;
         
-        // Dans cette API, les points sont dans json.points
-        const players = json.points;
+        // Tri initial par points
+        allPlayers.sort((a, b) => b.points - a.points);
+        
+        renderPlayerTable(allPlayers.slice(0, 100)); // Affiche le top 100 par défaut
+        
+        // Ajout barre de recherche
+        const searchHTML = `
+            <input type="text" class="search-bar" id="playerSearch" placeholder="Chercher un joueur (ex: Suzuki, McDavid...)" onkeyup="filterPlayers()">
+        `;
+        content.insertAdjacentHTML('afterbegin', searchHTML);
 
-        let html = `<table><tr><th>Nom</th><th>Équipe</th><th style="text-align:center">PJ</th><th style="text-align:center">B</th><th style="text-align:center">A</th><th style="text-align:center">PTS</th></tr>`;
-        players.forEach(p => {
-            html += `<tr>
-                <td style="font-weight:bold;">${p.firstName.default} ${p.lastName.default}</td>
-                <td>${p.teamAbbrev}</td>
-                <td style="text-align:center;">${p.gamesPlayed}</td>
-                <td style="text-align:center;">${p.goals}</td>
-                <td style="text-align:center;">${p.assists}</td>
-                <td style="font-weight:bold; color:#fc723f; text-align:center;">${p.value}</td>
-            </tr>`;
-        });
-        html += `</table>`;
-        content.innerHTML = html;
-    } catch(e) {
-        content.innerHTML = "<div style='color:red;'>Erreur : L'API NHL ne répond pas. Vérifiez que vous visualisez la page en HTTPS sur Replit.</div>";
+    } catch (e) {
+        content.innerHTML = "<div style='color:red;'>Erreur de connexion à l'API NHL.</div>";
     }
+}
+
+function renderPlayerTable(players) {
+    let tableContainer = document.getElementById("playerTableContainer");
+    if(!tableContainer) {
+        tableContainer = document.createElement("div");
+        tableContainer.id = "playerTableContainer";
+        document.getElementById("subcontent").appendChild(tableContainer);
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>Joueur</th>
+                <th>Pos</th>
+                <th style="text-align:center">PJ</th>
+                <th style="text-align:center">B</th>
+                <th style="text-align:center">A</th>
+                <th style="text-align:center">PTS</th>
+                <th style="text-align:center">+/-</th>
+            </tr>`;
+    
+    players.forEach(p => {
+        html += `
+            <tr>
+                <td>
+                    <div class="team-badge">
+                        <img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg" onerror="this.style.display='none'">
+                        <strong>${p.firstName} ${p.lastName}</strong>
+                    </div>
+                </td>
+                <td style="color:#666">${p.positionCode}</td>
+                <td class="stats-val">${p.gamesPlayed}</td>
+                <td class="stats-val">${p.goals}</td>
+                <td class="stats-val">${p.assists}</td>
+                <td class="stats-val" style="font-weight:bold; color:#fc723f;">${p.points}</td>
+                <td class="stats-val" style="color:${p.plusMinus >= 0 ? 'green' : 'red'}">
+                    ${p.plusMinus > 0 ? '+' : ''}${p.plusMinus}
+                </td>
+            </tr>`;
+    });
+    html += `</table>`;
+    tableContainer.innerHTML = html;
+}
+
+function filterPlayers() {
+    const val = document.getElementById("playerSearch").value.toLowerCase();
+    const filtered = allPlayers.filter(p => 
+        (p.firstName + " " + p.lastName).toLowerCase().includes(val)
+    );
+    renderPlayerTable(filtered.slice(0, 50)); // Limite à 50 pour la fluidité de recherche
 }
 </script>
 
