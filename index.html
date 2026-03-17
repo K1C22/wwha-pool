@@ -2,13 +2,14 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>WWHA</title>
+<title>PNHL</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Aptos:ital,wght@0,400;1,400&display=swap');
 
 *{
     font-family:'Aptos', sans-serif;
+    box-sizing: border-box;
 }
 
 body{
@@ -32,16 +33,17 @@ body{
     box-shadow:0 10px 25px rgba(0,0,0,0.15);
     display:flex;
     flex-direction:column;
+    align-items:center;
 }
 
 .logo{
     width:150px;
-    margin:auto;
     margin-bottom:25px;
     opacity:0.35;
 }
 
 input{
+    width:100%;
     padding:12px;
     border-radius:8px;
     border:2px solid #222;
@@ -62,12 +64,43 @@ button{
     display:none;
 }
 
+/* BANDEAU HAUT */
+.header{
+    background:white;
+    padding:10px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.header h1{
+    margin:0;
+    font-size:20pt;
+}
+
+.header .user{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+#logoutBtn{
+    background:#c41f1f;
+    padding:6px 10px;
+    border-radius:6px;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    border:none;
+}
+
+/* NAVIGATION PRINCIPALE */
 .navbar{
     background:#1f5cc4;
-    padding:15px;
     display:flex;
     gap:20px;
-    align-items:center;
+    padding:10px 20px;
 }
 
 .navbar div{
@@ -80,8 +113,11 @@ button{
     border-bottom:3px solid white;
 }
 
+/* CONTENT */
 .content{
     padding:20px;
+    background:#fff;
+    min-height:calc(100vh - 100px);
 }
 
 /* sous onglets */
@@ -103,24 +139,15 @@ button{
     color:white;
 }
 
-#logoutBtn{
-    margin-left:auto;
-    background:#c41f1f;
-    padding:8px 12px;
-    border-radius:6px;
-    font-weight:bold;
-}
 </style>
-
 </head>
-
 <body>
 
 <!-- LOGIN -->
 <div id="loginPage">
     <div class="login-container">
         <img src="https://raw.githubusercontent.com/K1C22/wwha-pool/main/WWHA13b.png" class="logo"> 
-        <input type="text" placeholder="Identifiant">
+        <input type="text" placeholder="Identifiant" id="usernameInput">
         <input type="password" placeholder="Mot de passe">
         <button onclick="login()">CONNEXION</button>
     </div>
@@ -129,13 +156,22 @@ button{
 <!-- APP -->
 <div id="app">
 
+    <!-- BANDEAU HAUT -->
+    <div class="header">
+        <h1>PNHL</h1>
+        <div class="user">
+            <span id="usernameDisplay">GM</span>
+            <button id="logoutBtn" onclick="logout()">Déconnexion</button>
+        </div>
+    </div>
+
+    <!-- NAVIGATION PRINCIPALE -->
     <div class="navbar">
         <div onclick="show('vestiaire')">Vestiaire</div>
         <div onclick="show('classement')">Classement</div>
         <div onclick="show('recrutement')">Recrutement</div>
         <div onclick="show('reglements')">Règlements</div>
         <div onclick="show('histoire')">Histoire</div>
-        <button id="logoutBtn" onclick="logout()">Déconnexion</button>
     </div>
 
     <div class="content" id="content"></div>
@@ -146,6 +182,8 @@ button{
 
 /* LOGIN */
 function login(){
+    const username = document.getElementById("usernameInput").value || "GM";
+    document.getElementById("usernameDisplay").textContent = username;
     document.getElementById("loginPage").style.display="none";
     document.getElementById("app").style.display="block";
     show('vestiaire');
@@ -155,11 +193,11 @@ function login(){
 function logout(){
     document.getElementById("app").style.display="none";
     document.getElementById("loginPage").style.display="flex";
+    document.getElementById("usernameInput").value = "";
 }
 
 /* NAVIGATION */
 function show(page){
-
     // onglet actif
     const tabs = document.querySelectorAll(".navbar div");
     tabs.forEach(t => t.classList.remove("active"));
