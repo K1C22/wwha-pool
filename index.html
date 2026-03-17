@@ -69,8 +69,6 @@ button{
     background:#FFFFFF;
     padding:10px 20px;
     display:flex;
-    align-items:center;
-    justify-content:space-between;
     flex-direction:column;
     box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
@@ -91,7 +89,9 @@ button{
 #usernameDisplay{
     margin-top:4px;
     font-size:12pt;
+    font-weight:bold;
     color:#333333;
+    text-align:left; /* à gauche sous PNHL */
 }
 
 #logoutBtn{
@@ -112,11 +112,11 @@ button{
 }
 
 .navbar{
-    background:#E3E3E3; /* gris précédent */
+    background:#E3E3E3; /* gris clair */
     display:flex;
     gap:10px;
     padding:8px;
-    border-radius:10%; /* arrondi 10% */
+    border-radius:8px; /* arrondi sur les bords */
 }
 
 .navbar div{
@@ -125,7 +125,7 @@ button{
     min-width:120px;    
     text-align:center;
     padding:10px 0;
-    border-radius:10%;  /* arrondi 10% */
+    border-radius:8px;  /* arrondi sur les bords */
     color:#333333; 
     font-weight:bold;
     transition: all 0.2s;
