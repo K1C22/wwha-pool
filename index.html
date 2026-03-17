@@ -52,7 +52,6 @@ input{
 
 /* Bouton Entrer modifié */
 button {
-    Caption:Bienvenue;
     background: #fc723f;              /* Fond orange */
     color: #000000;                    /* Texte noir */
     border: none;                      /* Pas de bordure */
@@ -62,6 +61,11 @@ button {
     font-family: 'Aptos', sans-serif; /* Police Aptos */
     font-size: 12pt;                   /* Taille 12pt */
     font-weight: bold;                 /* Texte en gras */
+}
+
+/* Caption du bouton */
+button::after {
+    content: "Bienvenue";
 }
 
 /* APP */
