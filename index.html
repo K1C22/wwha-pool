@@ -41,7 +41,8 @@ body{
     margin-bottom:50px;
 }
 
-input{
+input[type="text"], 
+input[type="password"]{
     width:60%;
     padding:12px;
     border-radius:2px;
@@ -50,28 +51,32 @@ input{
     box-shadow:0 4px 4px rgba(0,0,0,0.15);
 }
 
-/* FIX CHECKBOX */
-label{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    margin-bottom:20px;
-    width:60%;
+/* FIX CHECKBOX CENTERING */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centre horizontalement */
+    gap: 8px;
+    width: 100%; /* Prend toute la largeur pour permettre le centrage */
+    margin-bottom: 20px;
+    cursor: pointer;
+    font-size: 10pt;
 }
 
 input[type="checkbox"]{
-    width:auto;
-    margin:0;
-    padding:0;
-    box-shadow:none;
-    transform: scale(1.1);
+    width: auto;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    transform: scale(1.2);
+    cursor: pointer;
 }
 
 button {
     background: #fc723f;
     color: #000000;
     border: none;
-    padding: 8px;
+    padding: 10px 20px;
     border-radius: 2px;
     cursor: pointer;
     font-size: 10pt;
@@ -173,17 +178,15 @@ button {
     padding:20px;
 }
 
-/* TABLE STYLES */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
 }
 th {
-    background: #F0F0F0;
+    background: #f8f8f8;
     padding: 10px;
     text-align: left;
-    border-bottom: 2px solid #ccc;
+    border-bottom: 2px solid #fc723f;
 }
 td {
     padding: 8px;
@@ -199,7 +202,7 @@ td {
         <input type="text" placeholder="Identifiant" id="usernameInput">
         <input type="password" placeholder="Mot de passe">
 
-        <label>
+        <label class="checkbox-container">
             <input type="checkbox" id="rememberMe"> Se souvenir de moi
         </label>
 
@@ -208,7 +211,6 @@ td {
 </div>
 
 <div id="app">
-
     <div class="header">
         <div class="header-top">
             <h1>PNHL</h1>
@@ -231,7 +233,6 @@ td {
 </div>
 
 <script>
-
 function login(){
     const username = document.getElementById("usernameInput").value;
     const remember = document.getElementById("rememberMe").checked;
@@ -246,7 +247,7 @@ function login(){
 
     document.getElementById("loginPage").style.display="none";
     document.getElementById("app").style.display="block";
-    document.getElementById("usernameDisplay").textContent=username;
+    document.getElementById("usernameDisplay").textContent = username;
     show('vestiaire');
 }
 
@@ -268,7 +269,7 @@ window.onload=function(){
 function show(page){
     const tabs=document.querySelectorAll(".navbar div");
     tabs.forEach(t=>t.classList.remove("active"));
-    const active=Array.from(tabs).find(t=>t.textContent.toLowerCase()===page);
+    const active=Array.from(tabs).find(t=>t.textContent.toLowerCase().includes(page));
     if(active) active.classList.add("active");
 
     document.getElementById("content").innerHTML=`
@@ -279,114 +280,61 @@ function show(page){
     const subnav=document.getElementById("subnav");
 
     if(page==="vestiaire"){
-        subnav.innerHTML=`
-            <div onclick="sub('chambre')">Chambre</div>
-            <div onclick="sub('contrats')">Contrats</div>
-        `;
-    }
-
-    if(page==="classement"){
+        subnav.innerHTML=`<div onclick="sub('chambre')">Chambre</div><div onclick="sub('contrats')">Contrats</div>`;
+    } else if(page==="classement"){
         subnav.innerHTML=`<div onclick="sub('general')">Général</div>`;
-    }
-
-    if(page==="recrutement"){
-        subnav.innerHTML=`
-            <div onclick="sub('echange')">Échange</div>
-            <div onclick="sub('joueur')">Joueur autonome</div>
-        `;
-    }
-
-    if(page==="reglements"){
-        subnav.innerHTML=`
-            <div onclick="sub('regles')">Règles</div>
-            <div onclick="sub('modif')">Modifications</div>
-        `;
-    }
-
-    if(page==="histoire"){
-        subnav.innerHTML=`
-            <div onclick="sub('draft')">Draft</div>
-            <div onclick="sub('ligue')">Ligue</div>
-            <div onclick="sub('franchises')">Franchises</div>
-        `;
+    } else if(page==="recrutement"){
+        subnav.innerHTML=`<div onclick="sub('echange')">Échange</div><div onclick="sub('joueur')">Joueur autonome</div>`;
+    } else if(page==="reglements"){
+        subnav.innerHTML=`<div onclick="sub('regles')">Règles</div><div onclick="sub('modif')">Modifications</div>`;
+    } else if(page==="histoire"){
+        subnav.innerHTML=`<div onclick="sub('draft')">Draft</div><div onclick="sub('ligue')">Ligue</div><div onclick="sub('franchises')">Franchises</div>`;
     }
 }
 
 function sub(type){
     const subs=document.querySelectorAll(".subnav div");
     subs.forEach(s=>s.classList.remove("active"));
-
     const clicked=Array.from(subs).find(s=>s.textContent.toLowerCase().includes(type));
     if(clicked) clicked.classList.add("active");
 
     if(type==="joueur"){
         loadNHLPlayers();
-        return;
+    } else {
+        document.getElementById("subcontent").innerHTML = "";
     }
-
-    document.getElementById("subcontent").innerHTML="";
 }
 
-/* NHL API FETCH */
 async function loadNHLPlayers(){
-    document.getElementById("subcontent").innerHTML = "Chargement des données NHL...";
+    const content = document.getElementById("subcontent");
+    content.innerHTML = "Chargement des leaders de la NHL...";
     
-    // API officielle pour les meneurs de points actuels
-    const url = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=100";
+    // Utilisation d'une URL de secours si l'API web principale est bloquée par le navigateur
+    const url = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=50";
 
-    try{
+    try {
         const res = await fetch(url);
-        if(!res.ok) throw new Error();
-
+        if(!res.ok) throw new Error("Erreur réseau");
         const data = await res.json();
         const players = data.points;
 
-        if(!players || players.length === 0){
-            document.getElementById("subcontent").innerHTML = "Aucune donnée NHL disponible.";
-            return;
-        }
-
-        let html = `
-        <table>
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Équipe</th>
-                    <th style="text-align:center;">PJ</th>
-                    <th style="text-align:center;">B</th>
-                    <th style="text-align:center;">A</th>
-                    <th style="text-align:center; background:#ffe8df;">PTS</th>
-                </tr>
-            </thead>
-            <tbody>
-        `;
-
+        let html = `<table><tr><th>Nom</th><th>Équipe</th><th>PJ</th><th>B</th><th>A</th><th>PTS</th></tr>`;
         players.forEach(p => {
-            // Reconstitution du nom complet depuis l'objet API
-            const fullName = `${p.firstName.default} ${p.lastName.default}`;
-            
-            html += `
-            <tr>
-                <td style="font-weight:500;">${fullName}</td>
+            html += `<tr>
+                <td>${p.firstName.default} ${p.lastName.default}</td>
                 <td>${p.teamAbbrev}</td>
-                <td style="text-align:center;">${p.gamesPlayed}</td>
-                <td style="text-align:center;">${p.goals}</td>
-                <td style="text-align:center;">${p.assists}</td>
-                <td style="text-align:center; font-weight:bold; background:#fff5f2;">${p.value}</td>
-            </tr>
-            `;
+                <td>${p.gamesPlayed}</td>
+                <td>${p.goals}</td>
+                <td>${p.assists}</td>
+                <td style="font-weight:bold; color:#fc723f;">${p.value}</td>
+            </tr>`;
         });
-
-        html += `</tbody></table>`;
-        document.getElementById("subcontent").innerHTML = html;
-
+        html += `</table>`;
+        content.innerHTML = html;
     } catch(e) {
-        console.error(e);
-        document.getElementById("subcontent").innerHTML = 
-        "<div style='color:red;'>Impossible de charger les joueurs NHL. L'API est peut-être temporairement indisponible.</div>";
+        content.innerHTML = "Erreur : Impossible d'accéder aux données NHL. <br><small>Note : Si vous testez localement, le navigateur peut bloquer l'accès pour des raisons de sécurité (CORS).</small>";
     }
 }
-
 </script>
 
 </body>
