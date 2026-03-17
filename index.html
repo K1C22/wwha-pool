@@ -50,6 +50,23 @@ input{
     box-shadow:0 4px 4px rgba(0,0,0,0.15);
 }
 
+/* FIX CHECKBOX */
+label{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:20px;
+    width:60%;
+}
+
+input[type="checkbox"]{
+    width:auto;
+    margin:0;
+    padding:0;
+    box-shadow:none;
+    transform: scale(1.1);
+}
+
 button {
     background: #fc723f;
     color: #000000;
@@ -127,7 +144,7 @@ button {
     background:#fc723f;
 }
 
-/* SUBNAV (corrigé) */
+/* SUBNAV */
 .subnav{
     margin-top:0;
     display:flex;
@@ -166,7 +183,7 @@ button {
         <input type="text" placeholder="Identifiant" id="usernameInput">
         <input type="password" placeholder="Mot de passe">
 
-        <label style="font-size:10pt; margin-bottom:6px;">
+        <label>
             <input type="checkbox" id="rememberMe"> Se souvenir de moi
         </label>
 
@@ -292,16 +309,23 @@ function sub(type){
         return;
     }
 
-    document.getElementById("subcontent").innerHTML="Contenu "+type;
+    document.getElementById("subcontent").innerHTML="";
 }
 
-/* NHL (corrigé) */
+/* NHL */
 async function loadNHLPlayers(){
-    const url = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=500";
+    const url = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=100";
 
     try{
         const res = await fetch(url);
+        if(!res.ok) throw new Error();
+
         const data = await res.json();
+
+        if(!data.points){
+            document.getElementById("subcontent").innerHTML = "Aucune donnée NHL.";
+            return;
+        }
 
         let html = `
         <table style="width:100%; border-collapse:collapse;">
@@ -329,7 +353,8 @@ async function loadNHLPlayers(){
         document.getElementById("subcontent").innerHTML = html;
 
     }catch(e){
-        document.getElementById("subcontent").innerHTML = "Erreur chargement NHL";
+        document.getElementById("subcontent").innerHTML =
+        "Impossible de charger les joueurs NHL.";
     }
 }
 
