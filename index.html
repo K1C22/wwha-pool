@@ -2,19 +2,18 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>PNHL</title>
+<title>WWHA</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Aptos:ital,wght@0,400;1,400&display=swap');
 
 *{
     font-family:'Aptos', sans-serif;
-    box-sizing: border-box;
 }
 
 body{
     margin:0;
-    background:#EFEFEF;
+    background:#efefef;
 }
 
 /* LOGIN */
@@ -26,36 +25,35 @@ body{
 }
 
 .login-container{
-    background:#FFFFFF;
+    background:white;
     padding:40px;
     width:360px;
-    border-radius:12px;
+    border-radius:6px;
     box-shadow:0 10px 25px rgba(0,0,0,0.15);
     display:flex;
     flex-direction:column;
-    align-items:center;
 }
 
 .logo{
     width:150px;
+    margin:auto;
     margin-bottom:25px;
     opacity:0.35;
 }
 
 input{
-    width:100%;
     padding:12px;
-    border-radius:8px;
-    border:2px solid #222222;
+    border-radius:4px;
+    border:2px solid #222;
     margin-bottom:10px;
 }
 
 button{
-    background:#1F5CC4;
-    color:#FFFFFF;
+    background:#1f5cc4;
+    color:white;
     border:none;
     padding:12px;
-    border-radius:8px;
+    border-radius:4px;
     cursor:pointer;
 }
 
@@ -64,84 +62,38 @@ button{
     display:none;
 }
 
-/* BANDEAU HAUT */
-.header{
-    background:#FFFFFF;
-    padding:10px 20px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    flex-direction:column;
-    box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
-
-.header-top{
-    width:100%;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-.header h1{
-    margin:0;
-    font-size:20pt;
-    font-weight:bold;
-}
-
-#usernameDisplay{
-    margin-top:4px;
-    font-size:12pt;
-    color:#333333;
-}
-
-#logoutBtn{
-    background:#FFFFFF;
-    color:#000000;
-    border:1px solid #222222;
-    padding:6px 12px;
-    border-radius:2px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-/* DEUXIÈME BANDEAU BLANC AVEC ONGLET GRIS */
-.navbar-container{
-    background:#FFFFFF;
-    padding:10px 20px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.1);
-}
-
+/* bandeau plus clair uniquement */
 .navbar{
-    background:#E3E3E3; /* nouveau gris clair */
+    background:#d3d3d3; /* gris plus clair */
+    padding:15px;
     display:flex;
-    gap:10px;
-    padding:8px;
-    border-radius:2px;
+    align-items:center;
 }
 
 .navbar div{
+    color:white;
     cursor:pointer;
-    flex:1;             
-    min-width:120px;    
-    text-align:center;
-    padding:10px 0;
-    border-radius:2px;  
-    color:#333333; 
     font-weight:bold;
-    transition: all 0.2s;
+    text-align:center;
+    flex:1;
+    padding:12px 0;
+    min-height:40px;
 }
 
-.navbar div:hover,
 .navbar div.active{
-    background:#FFFFFF;
-    color:#000000;
+    border-bottom:3px solid white;
 }
 
-/* CONTENT */
+#logoutBtn{
+    margin-left:auto;
+    background:#c41f1f;
+    padding:8px 12px;
+    border-radius:4px;
+    font-weight:bold;
+}
+
 .content{
     padding:20px;
-    background:#FFFFFF;
-    min-height:calc(100vh - 160px);
 }
 
 /* sous onglets */
@@ -154,25 +106,25 @@ button{
 .subnav div{
     cursor:pointer;
     padding:6px 10px;
-    background:#DDDDDD;
+    background:#ddd;
     border-radius:4px;
-    transition: all 0.2s;
 }
 
-.subnav div.active,
-.subnav div:hover{
-    background:#1F5CC4;
-    color:#FFFFFF;
+.subnav div.active{
+    background:#1f5cc4;
+    color:white;
 }
 </style>
+
 </head>
+
 <body>
 
 <!-- LOGIN -->
 <div id="loginPage">
     <div class="login-container">
         <img src="https://raw.githubusercontent.com/K1C22/wwha-pool/main/WWHA13b.png" class="logo"> 
-        <input type="text" placeholder="Identifiant" id="usernameInput">
+        <input type="text" placeholder="Identifiant">
         <input type="password" placeholder="Mot de passe">
         <button onclick="login()">CONNEXION</button>
     </div>
@@ -181,24 +133,13 @@ button{
 <!-- APP -->
 <div id="app">
 
-    <!-- BANDEAU HAUT -->
-    <div class="header">
-        <div class="header-top">
-            <h1>PNHL</h1>
-            <button id="logoutBtn" onclick="logout()">Déconnexion</button>
-        </div>
-        <div id="usernameDisplay"></div>
-    </div>
-
-    <!-- DEUXIÈME BANDEAU BLANC AVEC ONGLET GRIS INTÉGRÉ -->
-    <div class="navbar-container">
-        <div class="navbar">
-            <div onclick="show('vestiaire')">Vestiaire</div>
-            <div onclick="show('classement')">Classement</div>
-            <div onclick="show('recrutement')">Recrutement</div>
-            <div onclick="show('reglements')">Règlements</div>
-            <div onclick="show('histoire')">Histoire</div>
-        </div>
+    <div class="navbar">
+        <div onclick="show('vestiaire')">Vestiaire</div>
+        <div onclick="show('classement')">Classement</div>
+        <div onclick="show('recrutement')">Recrutement</div>
+        <div onclick="show('reglements')">Règlements</div>
+        <div onclick="show('histoire')">Histoire</div>
+        <button id="logoutBtn" onclick="logout()">Déconnexion</button>
     </div>
 
     <div class="content" id="content"></div>
@@ -206,14 +147,11 @@ button{
 </div>
 
 <script>
+
 /* LOGIN */
 function login(){
-    const username = document.getElementById("usernameInput").value;
-    if(username.trim() === "") { alert("Veuillez entrer un identifiant."); return; }
-
     document.getElementById("loginPage").style.display="none";
     document.getElementById("app").style.display="block";
-    document.getElementById("usernameDisplay").textContent = username;
     show('vestiaire');
 }
 
@@ -221,12 +159,12 @@ function login(){
 function logout(){
     document.getElementById("app").style.display="none";
     document.getElementById("loginPage").style.display="flex";
-    document.getElementById("usernameInput").value = "";
-    document.getElementById("usernameDisplay").textContent = "";
 }
 
 /* NAVIGATION */
 function show(page){
+
+    // onglet actif
     const tabs = document.querySelectorAll(".navbar div");
     tabs.forEach(t => t.classList.remove("active"));
     const activeTab = Array.from(tabs).find(t => t.textContent.toLowerCase()===page);
@@ -300,9 +238,11 @@ function sub(type){
 
     document.getElementById("subcontent").innerHTML = content;
 
+    // sous onglet actif
     const clicked = Array.from(subs).find(s => s.textContent.replace(/\s/g,"").toLowerCase().includes(type));
     if(clicked) clicked.classList.add("active");
 }
+
 </script>
 
 </body>
