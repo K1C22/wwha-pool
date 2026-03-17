@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+à<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -51,7 +51,7 @@ input[type="password"]{
     box-shadow:0 4px 4px rgba(0,0,0,0.15);
 }
 
-/* CENTRAGE PARFAIT CHECKBOX */
+/* CENTRAGE CHECKBOX */
 .remember-container {
     display: flex;
     align-items: center;
@@ -104,7 +104,6 @@ button {
 }
 
 .header h1{ margin:0; font-size:20pt; font-weight:bold; }
-
 #usernameDisplay{ font-size:12pt; font-weight:bold; }
 
 #logoutBtn{
@@ -115,19 +114,23 @@ button {
     cursor:pointer;
 }
 
+/* NAVBARS RÉDUITES DE 20% (Largeur 80%) */
 .navbar-container{
     background:#FFFFFF;
     padding:10px 20px;
+    display: flex;
+    justify-content: center;
 }
 
-.navbar{
+.navbar, .subnav {
     background:#F0F0F0;
     display:flex;
     gap:6px;
     padding:4px;
+    width: 80%; /* Largeur réduite de 20% */
 }
 
-.navbar div{
+.navbar div, .subnav div{
     flex:1;
     text-align:center;
     padding:10px;
@@ -135,26 +138,10 @@ button {
     font-weight:bold;
 }
 
-.navbar div.active, .navbar div:hover{ background:#fc723f; }
-
-.subnav{
-    margin-top:0;
-    display:flex;
-    gap:6px;
-    background:#F0F0F0;
-    padding:4px;
+.navbar div.active, .navbar div:hover,
+.subnav div.active, .subnav div:hover { 
+    background:#fc723f; 
 }
-
-.subnav div{
-    cursor:pointer;
-    flex:1;
-    text-align:center;
-    padding:10px 0;
-    color:#333333;
-    font-weight:bold;
-}
-
-.subnav div.active{ background:#fc723f; }
 
 .content{ padding:20px; }
 
@@ -236,9 +223,12 @@ function show(page){
     const active=Array.from(tabs).find(t=>t.textContent.toLowerCase().includes(page));
     if(active) active.classList.add("active");
 
+    // Centrage du subnav dans le content
     document.getElementById("content").innerHTML=`
-        <div class="subnav" id="subnav"></div>
-        <div id="subcontent" style="margin-top:10px;"></div>
+        <div style="display:flex; justify-content:center; width:100%;">
+            <div class="subnav" id="subnav"></div>
+        </div>
+        <div id="subcontent" style="margin-top:20px;"></div>
     `;
 
     const subnav=document.getElementById("subnav");
@@ -263,29 +253,32 @@ async function loadNHLPlayers(){
     const content = document.getElementById("subcontent");
     content.innerHTML = "Récupération des données NHL...";
     
-    // URL optimisée pour éviter les erreurs de structure
-    const url = "https://api.nhle.com/stats/rest/en/skater/summary?isAggregate=false&isGame=false&sort=%5B%7B%22property%22%3A%22points%22%2C%22direction%22%3A%22DESC%22%7D%5D&start=0&limit=50&cayenneExp=gameTypeId=2%20and%20seasonId%3C=20252026%20and%20seasonId%3E=20252026";
+    // Retour à l'API Web Leaders qui est plus stable sur Replit
+    const url = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=50";
 
     try {
         const res = await fetch(url);
         if(!res.ok) throw new Error();
         const json = await res.json();
         
-        let html = `<table><tr><th>Nom</th><th>Équipe</th><th>PJ</th><th>B</th><th>A</th><th>PTS</th></tr>`;
-        json.data.forEach(p => {
+        // Dans cette API, les points sont dans json.points
+        const players = json.points;
+
+        let html = `<table><tr><th>Nom</th><th>Équipe</th><th style="text-align:center">PJ</th><th style="text-align:center">B</th><th style="text-align:center">A</th><th style="text-align:center">PTS</th></tr>`;
+        players.forEach(p => {
             html += `<tr>
-                <td style="font-weight:bold;">${p.skaterFullName}</td>
-                <td>${p.teamAbbrevs}</td>
+                <td style="font-weight:bold;">${p.firstName.default} ${p.lastName.default}</td>
+                <td>${p.teamAbbrev}</td>
                 <td style="text-align:center;">${p.gamesPlayed}</td>
                 <td style="text-align:center;">${p.goals}</td>
                 <td style="text-align:center;">${p.assists}</td>
-                <td style="font-weight:bold; color:#fc723f; text-align:center;">${p.points}</td>
+                <td style="font-weight:bold; color:#fc723f; text-align:center;">${p.value}</td>
             </tr>`;
         });
         html += `</table>`;
         content.innerHTML = html;
     } catch(e) {
-        content.innerHTML = "<div style='color:red;'>Erreur de chargement. Si vous testez sur Replit, assurez-vous d'utiliser l'adresse en HTTPS.</div>";
+        content.innerHTML = "<div style='color:red;'>Erreur : L'API NHL ne répond pas. Vérifiez que vous visualisez la page en HTTPS sur Replit.</div>";
     }
 }
 </script>
