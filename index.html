@@ -39,7 +39,6 @@ body{
 .logo{
     width:300px;
     margin-bottom:50px;
-    opacity:1.00;
 }
 
 input{
@@ -51,7 +50,6 @@ input{
     box-shadow:0 4px 4px rgba(0,0,0,0.15);
 }
 
-/* Bouton Entrer modifié */
 button {
     background: #fc723f;
     color: #000000;
@@ -59,7 +57,6 @@ button {
     padding: 8px;
     border-radius: 2px;
     cursor: pointer;
-    font-family: 'Aptos', sans-serif;
     font-size: 10pt;
     font-weight: bold;
     box-shadow:0 4px 4px rgba(0,0,0,0.15);
@@ -70,7 +67,7 @@ button {
     display:none;
 }
 
-/* BANDEAU HAUT */
+/* HEADER */
 .header{
     background:#FFFFFF;
     padding:10px 20px;
@@ -80,7 +77,6 @@ button {
 }
 
 .header-top{
-    width:100%;
     display:flex;
     justify-content:space-between;
     align-items:center;
@@ -93,21 +89,15 @@ button {
 }
 
 #usernameDisplay{
-    margin-top:4px;
     font-size:12pt;
     font-weight:bold;
-    color:#333333;
-    text-align:left;
-    font-family:'Aptos', sans-serif;
 }
 
 #logoutBtn{
     background:#F5F5F5;
-    color:#000000;
     border:1px solid #F5F5F5;
     padding:6px 12px;
     border-radius:2px;
-    font-weight:bold;
     cursor:pointer;
 }
 
@@ -115,7 +105,6 @@ button {
 .navbar-container{
     background:#FFFFFF;
     padding:10px 20px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.1);
 }
 
 .navbar{
@@ -123,51 +112,44 @@ button {
     display:flex;
     gap:6px;
     padding:4px;
-    border-radius:2px;
 }
 
 .navbar div{
-    cursor:pointer;
     flex:1;
-    min-width:120px;
     text-align:center;
-    padding:10px 0;
-    border-radius:0px;
-    color:#333333;
+    padding:10px;
+    cursor:pointer;
     font-weight:bold;
-    transition: all 0.2s;
 }
 
-.navbar div:hover,
-.navbar div.active{
+.navbar div.active,
+.navbar div:hover{
     background:#fc723f;
-    color:#000000;
+}
+
+/* SUBNAV */
+.subnav{
+    margin-top:10px;
+    display:flex;
+    gap:10px;
+    background:#F0F0F0;
+    padding:5px;
+}
+
+.subnav div{
+    padding:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.subnav div:hover,
+.subnav div.active{
+    background:#1F5CC4;
+    color:#fff;
 }
 
 .content{
     padding:20px;
-    background:#FFFFFF;
-    min-height:calc(100vh - 160px);
-}
-
-.subnav{
-    margin-top:10px;
-    display:flex;
-    gap:15px;
-}
-
-.subnav div{
-    cursor:pointer;
-    padding:6px 10px;
-    background:#DDDDDD;
-    border-radius:4px;
-    transition: all 0.2s;
-}
-
-.subnav div.active,
-.subnav div:hover{
-    background:#1F5CC4;
-    color:#FFFFFF;
 }
 </style>
 </head>
@@ -179,6 +161,11 @@ button {
         <img src="https://raw.githubusercontent.com/K1C22/wwha-pool/main/WWHA13b.png" class="logo">
         <input type="text" placeholder="Identifiant" id="usernameInput">
         <input type="password" placeholder="Mot de passe">
+
+        <label style="font-size:10pt; margin-bottom:15px;">
+            <input type="checkbox" id="rememberMe"> Se souvenir de moi
+        </label>
+
         <button onclick="login()">Connexion</button>
     </div>
 </div>
@@ -208,142 +195,126 @@ button {
 </div>
 
 <script>
+
 function login(){
     const username = document.getElementById("usernameInput").value;
-    if(username.trim() === "") { alert("Veuillez entrer un identifiant."); return; }
+    const remember = document.getElementById("rememberMe").checked;
+
+    if(username.trim()===""){ alert("Veuillez entrer un identifiant."); return; }
+
+    if(remember){
+        localStorage.setItem("pnhl_user", username);
+    } else {
+        localStorage.removeItem("pnhl_user");
+    }
 
     document.getElementById("loginPage").style.display="none";
     document.getElementById("app").style.display="block";
-    document.getElementById("usernameDisplay").textContent = username;
+    document.getElementById("usernameDisplay").textContent=username;
     show('vestiaire');
 }
 
 function logout(){
     document.getElementById("app").style.display="none";
     document.getElementById("loginPage").style.display="flex";
-    document.getElementById("usernameInput").value = "";
-    document.getElementById("usernameDisplay").textContent = "";
+    localStorage.removeItem("pnhl_user");
 }
 
-function show(page){
-    const tabs = document.querySelectorAll(".navbar div");
-    tabs.forEach(t => t.classList.remove("active"));
-    const activeTab = Array.from(tabs).find(t => t.textContent.toLowerCase()===page);
-    if(activeTab) activeTab.classList.add("active");
+window.onload=function(){
+    const saved=localStorage.getItem("pnhl_user");
+    if(saved){
+        document.getElementById("usernameInput").value=saved;
+        document.getElementById("rememberMe").checked=true;
+        login();
+    }
+};
 
-    let html = "";
+function show(page){
+    const tabs=document.querySelectorAll(".navbar div");
+    tabs.forEach(t=>t.classList.remove("active"));
+    const active=Array.from(tabs).find(t=>t.textContent.toLowerCase()===page);
+    if(active) active.classList.add("active");
+
+    document.getElementById("content").innerHTML=`
+        <div class="subnav" id="subnav"></div>
+        <div id="subcontent" style="margin-top:20px;"></div>
+    `;
+
+    const subnav=document.getElementById("subnav");
 
     if(page==="vestiaire"){
-        html = `
-        <h2>Vestiaire</h2>
-        <div class="subnav">
+        subnav.innerHTML=`
             <div onclick="sub('chambre')">Chambre</div>
             <div onclick="sub('contrats')">Contrats</div>
-        </div>
-        <div id="subcontent">Choisir un onglet</div>`;
+        `;
     }
 
     if(page==="classement"){
-        html = `<h2>Classement</h2>`;
+        subnav.innerHTML=`<div onclick="sub('general')">Général</div>`;
     }
 
     if(page==="recrutement"){
-        html = `
-        <h2>Recrutement</h2>
-        <div class="subnav">
+        subnav.innerHTML=`
             <div onclick="sub('echange')">Échange</div>
             <div onclick="sub('joueur')">Joueur autonome</div>
-        </div>
-        <div id="subcontent"></div>`;
+        `;
     }
 
     if(page==="reglements"){
-        html = `
-        <h2>Règlements</h2>
-        <div class="subnav">
+        subnav.innerHTML=`
             <div onclick="sub('regles')">Règles</div>
             <div onclick="sub('modif')">Modifications</div>
-        </div>
-        <div id="subcontent"></div>`;
+        `;
     }
 
     if(page==="histoire"){
-        html = `
-        <h2>Histoire</h2>
-        <div class="subnav">
+        subnav.innerHTML=`
             <div onclick="sub('draft')">Draft</div>
             <div onclick="sub('ligue')">Ligue</div>
             <div onclick="sub('franchises')">Franchises</div>
-        </div>
-        <div id="subcontent"></div>`;
+        `;
     }
-
-    document.getElementById("content").innerHTML = html;
 }
 
 function sub(type){
-    let content = "";
-    const subs = document.querySelectorAll(".subnav div");
-    subs.forEach(s => s.classList.remove("active"));
+    const subs=document.querySelectorAll(".subnav div");
+    subs.forEach(s=>s.classList.remove("active"));
 
-    if(type==="chambre") content="Contenu Chambre";
-    if(type==="contrats") content="Contenu Contrats";
-    if(type==="echange") content="Contenu Échange";
+    const clicked=Array.from(subs).find(s=>s.textContent.toLowerCase().includes(type));
+    if(clicked) clicked.classList.add("active");
 
     if(type==="joueur"){
         loadNHLPlayers();
         return;
     }
 
-    if(type==="regles") content="Liste des règles";
-    if(type==="modif") content="Historique des modifications";
-    if(type==="draft") content="Historique Draft";
-    if(type==="ligue") content="Historique Ligue";
-    if(type==="franchises") content="Historique Franchises";
-
-    document.getElementById("subcontent").innerHTML = content;
-
-    const clicked = Array.from(subs).find(s => s.textContent.replace(/\s/g,"").toLowerCase().includes(type));
-    if(clicked) clicked.classList.add("active");
+    document.getElementById("subcontent").innerHTML="Contenu "+type;
 }
 
-/* AJOUT NHL */
+/* NHL */
 async function loadNHLPlayers(){
-    const url = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=1000";
+    const url="https://api-web.nhle.com/v1/skater-stats/20252026/2?sort=points&limit=1000";
 
-    try{
-        const response = await fetch(url);
-        const data = await response.json();
+    const res=await fetch(url);
+    const data=await res.json();
 
-        let html = `
-        <table style="width:100%; border-collapse:collapse;">
-            <tr style="background:#F0F0F0; font-weight:bold;">
-                <td style="padding:8px;">Nom</td>
-                <td>Équipe</td>
-                <td>Matchs</td>
-                <td>Points</td>
-            </tr>
-        `;
+    let html=`<table style="width:100%; border-collapse:collapse;">
+    <tr><td>Nom</td><td>Équipe</td><td>Matchs</td><td>Points</td></tr>`;
 
-        data.points.forEach(player => {
-            html += `
-            <tr>
-                <td style="padding:6px;">${player.name.default}</td>
-                <td>${player.teamAbbrev}</td>
-                <td>${player.gamesPlayed}</td>
-                <td>${player.points}</td>
-            </tr>
-            `;
-        });
+    data.data.forEach(p=>{
+        html+=`<tr>
+        <td>${p.skaterFullName}</td>
+        <td>${p.teamAbbrevs}</td>
+        <td>${p.gamesPlayed}</td>
+        <td>${p.points}</td>
+        </tr>`;
+    });
 
-        html += `</table>`;
+    html+=`</table>`;
 
-        document.getElementById("subcontent").innerHTML = html;
-
-    }catch(e){
-        document.getElementById("subcontent").innerHTML = "Erreur chargement NHL";
-    }
+    document.getElementById("subcontent").innerHTML=html;
 }
+
 </script>
 
 </body>
