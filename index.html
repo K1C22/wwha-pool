@@ -85,7 +85,7 @@ button{
     color:black;
     border:1px solid #222;
     padding:6px 12px;
-    border-radius:4.8px; /* arrondi réduit de 20% */
+    border-radius:2px; /* ARRONDI VISIBLE */
     font-weight:bold;
     cursor:pointer;
 }
@@ -102,16 +102,16 @@ button{
     display:flex;
     gap:10px;
     padding:8px;
-    border-radius:6.4px; /* arrondi réduit de 20% */
+    border-radius:2px; /* ARRONDI VISIBLE */
 }
 
-/* Onglets principaux - même taille */
 .navbar div{
     cursor:pointer;
-    flex:1; /* toutes les cases ont la même largeur */
+    flex:1;             /* même largeur */
+    min-width:120px;    /* largeur minimale visible */
     text-align:center;
     padding:10px 0;
-    border-radius:4.8px; /* arrondi réduit de 20% */
+    border-radius:2px;  /* ARRONDI VISIBLE */
     color:#333;
     font-weight:bold;
     transition: all 0.2s;
@@ -141,7 +141,7 @@ button{
     cursor:pointer;
     padding:6px 10px;
     background:#ddd;
-    border-radius:6px;
+    border-radius:4px;
     transition: all 0.2s;
 }
 
