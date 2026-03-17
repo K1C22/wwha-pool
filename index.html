@@ -127,25 +127,29 @@ button {
     background:#fc723f;
 }
 
-/* SUBNAV */
+/* SUBNAV (corrigé) */
 .subnav{
-    margin-top:10px;
+    margin-top:0;
     display:flex;
-    gap:10px;
+    gap:6px;
     background:#F0F0F0;
-    padding:5px;
+    padding:4px;
 }
 
 .subnav div{
-    padding:8px;
     cursor:pointer;
+    flex:1;
+    text-align:center;
+    padding:10px 0;
+    color:#333333;
     font-weight:bold;
+    transition: all 0.2s;
 }
 
 .subnav div:hover,
 .subnav div.active{
-    background:#1F5CC4;
-    color:#fff;
+    background:#fc723f;
+    color:#000000;
 }
 
 .content{
@@ -237,7 +241,7 @@ function show(page){
 
     document.getElementById("content").innerHTML=`
         <div class="subnav" id="subnav"></div>
-        <div id="subcontent" style="margin-top:20px;"></div>
+        <div id="subcontent" style="margin-top:10px;"></div>
     `;
 
     const subnav=document.getElementById("subnav");
@@ -291,28 +295,42 @@ function sub(type){
     document.getElementById("subcontent").innerHTML="Contenu "+type;
 }
 
-/* NHL */
+/* NHL (corrigé) */
 async function loadNHLPlayers(){
-    const url="https://api-web.nhle.com/v1/skater-stats/20252026/2?sort=points&limit=1000";
+    const url = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=500";
 
-    const res=await fetch(url);
-    const data=await res.json();
+    try{
+        const res = await fetch(url);
+        const data = await res.json();
 
-    let html=`<table style="width:100%; border-collapse:collapse;">
-    <tr><td>Nom</td><td>Équipe</td><td>Matchs</td><td>Points</td></tr>`;
+        let html = `
+        <table style="width:100%; border-collapse:collapse;">
+            <tr style="background:#F0F0F0; font-weight:bold;">
+                <td style="padding:8px;">Nom</td>
+                <td>Équipe</td>
+                <td>Matchs</td>
+                <td>Points</td>
+            </tr>
+        `;
 
-    data.data.forEach(p=>{
-        html+=`<tr>
-        <td>${p.skaterFullName}</td>
-        <td>${p.teamAbbrevs}</td>
-        <td>${p.gamesPlayed}</td>
-        <td>${p.points}</td>
-        </tr>`;
-    });
+        data.points.forEach(p => {
+            html += `
+            <tr>
+                <td style="padding:6px;">${p.name.default}</td>
+                <td>${p.teamAbbrev}</td>
+                <td>${p.gamesPlayed}</td>
+                <td>${p.points}</td>
+            </tr>
+            `;
+        });
 
-    html+=`</table>`;
+        html += `</table>`;
 
-    document.getElementById("subcontent").innerHTML=html;
+        document.getElementById("subcontent").innerHTML = html;
+
+    }catch(e){
+        document.getElementById("subcontent").innerHTML = "Erreur chargement NHL";
+    }
 }
 
 </script>
