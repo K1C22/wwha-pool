@@ -172,11 +172,27 @@ button {
 .content{
     padding:20px;
 }
+
+/* TABLE STYLES */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+th {
+    background: #F0F0F0;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 2px solid #ccc;
+}
+td {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginPage">
     <div class="login-container">
         <img src="https://raw.githubusercontent.com/K1C22/wwha-pool/main/WWHA13b.png" class="logo">
@@ -191,7 +207,6 @@ button {
     </div>
 </div>
 
-<!-- APP -->
 <div id="app">
 
     <div class="header">
@@ -312,8 +327,11 @@ function sub(type){
     document.getElementById("subcontent").innerHTML="";
 }
 
-/* NHL */
+/* NHL API FETCH */
 async function loadNHLPlayers(){
+    document.getElementById("subcontent").innerHTML = "Chargement des données NHL...";
+    
+    // API officielle pour les meneurs de points actuels
     const url = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=100";
 
     try{
@@ -321,40 +339,51 @@ async function loadNHLPlayers(){
         if(!res.ok) throw new Error();
 
         const data = await res.json();
+        const players = data.points;
 
-        if(!data.points){
-            document.getElementById("subcontent").innerHTML = "Aucune donnée NHL.";
+        if(!players || players.length === 0){
+            document.getElementById("subcontent").innerHTML = "Aucune donnée NHL disponible.";
             return;
         }
 
         let html = `
-        <table style="width:100%; border-collapse:collapse;">
-            <tr style="background:#F0F0F0; font-weight:bold;">
-                <td style="padding:8px;">Nom</td>
-                <td>Équipe</td>
-                <td>Matchs</td>
-                <td>Points</td>
-            </tr>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Équipe</th>
+                    <th style="text-align:center;">PJ</th>
+                    <th style="text-align:center;">B</th>
+                    <th style="text-align:center;">A</th>
+                    <th style="text-align:center; background:#ffe8df;">PTS</th>
+                </tr>
+            </thead>
+            <tbody>
         `;
 
-        data.points.forEach(p => {
+        players.forEach(p => {
+            // Reconstitution du nom complet depuis l'objet API
+            const fullName = `${p.firstName.default} ${p.lastName.default}`;
+            
             html += `
             <tr>
-                <td style="padding:6px;">${p.name.default}</td>
+                <td style="font-weight:500;">${fullName}</td>
                 <td>${p.teamAbbrev}</td>
-                <td>${p.gamesPlayed}</td>
-                <td>${p.points}</td>
+                <td style="text-align:center;">${p.gamesPlayed}</td>
+                <td style="text-align:center;">${p.goals}</td>
+                <td style="text-align:center;">${p.assists}</td>
+                <td style="text-align:center; font-weight:bold; background:#fff5f2;">${p.value}</td>
             </tr>
             `;
         });
 
-        html += `</table>`;
-
+        html += `</tbody></table>`;
         document.getElementById("subcontent").innerHTML = html;
 
-    }catch(e){
-        document.getElementById("subcontent").innerHTML =
-        "Impossible de charger les joueurs NHL.";
+    } catch(e) {
+        console.error(e);
+        document.getElementById("subcontent").innerHTML = 
+        "<div style='color:red;'>Impossible de charger les joueurs NHL. L'API est peut-être temporairement indisponible.</div>";
     }
 }
 
