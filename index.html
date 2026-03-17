@@ -51,34 +51,34 @@ input[type="password"]{
     box-shadow:0 4px 4px rgba(0,0,0,0.15);
 }
 
-/* CENTRAGE CHECKBOX */
-.remember-group {
+/* CENTRAGE PARFAIT CHECKBOX */
+.remember-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 60%; /* Aligné sur la largeur des inputs */
-    margin-bottom: 20px;
+    width: 100%;
     gap: 8px;
+    margin-bottom: 20px;
+    cursor: pointer;
 }
 
-.remember-group input {
-    width: auto;
+.remember-container input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
     margin: 0;
-    box-shadow: none;
     cursor: pointer;
 }
 
-.remember-group label {
+.remember-container span {
     font-size: 10pt;
-    cursor: pointer;
-    white-space: nowrap;
+    color: #333;
 }
 
 button {
     background: #fc723f;
     color: #000000;
     border: none;
-    padding: 10px 20px;
+    padding: 10px 25px;
     border-radius: 2px;
     cursor: pointer;
     font-size: 10pt;
@@ -171,10 +171,10 @@ td { padding: 8px; border-bottom: 1px solid #eee; }
         <input type="text" placeholder="Identifiant" id="usernameInput">
         <input type="password" placeholder="Mot de passe">
 
-        <div class="remember-group">
+        <label class="remember-container">
             <input type="checkbox" id="rememberMe">
-            <label for="rememberMe">Se souvenir de moi</label>
-        </div>
+            <span>Se souvenir de moi</span>
+        </label>
 
         <button onclick="login()">Connexion</button>
     </div>
@@ -261,21 +261,20 @@ function sub(type){
 
 async function loadNHLPlayers(){
     const content = document.getElementById("subcontent");
-    content.innerHTML = "Chargement des statistiques NHL...";
+    content.innerHTML = "Récupération des données NHL...";
     
-    // URL alternative plus permissive (AllSkaters 2025-2026)
-    const url = "https://api.nhle.com/stats/rest/en/skater/summary?isAggregate=false&isGame=false&sort=%5B%7B%22property%22%3A%22points%22%2C%22direction%22%3A%22DESC%22%7D%2C%7B%22property%22%3A%22goals%22%2C%22direction%22%3A%22DESC%22%7D%5D&start=0&limit=50&factCayenneExp=gamesPlayed%3E=1&cayenneExp=gameTypeId=2%20and%20seasonId%3C=20252026%20and%20seasonId%3E=20252026";
+    // URL optimisée pour éviter les erreurs de structure
+    const url = "https://api.nhle.com/stats/rest/en/skater/summary?isAggregate=false&isGame=false&sort=%5B%7B%22property%22%3A%22points%22%2C%22direction%22%3A%22DESC%22%7D%5D&start=0&limit=50&cayenneExp=gameTypeId=2%20and%20seasonId%3C=20252026%20and%20seasonId%3E=20252026";
 
     try {
         const res = await fetch(url);
         if(!res.ok) throw new Error();
         const json = await res.json();
-        const players = json.data;
-
+        
         let html = `<table><tr><th>Nom</th><th>Équipe</th><th>PJ</th><th>B</th><th>A</th><th>PTS</th></tr>`;
-        players.forEach(p => {
+        json.data.forEach(p => {
             html += `<tr>
-                <td style="font-weight:500;">${p.skaterFullName}</td>
+                <td style="font-weight:bold;">${p.skaterFullName}</td>
                 <td>${p.teamAbbrevs}</td>
                 <td style="text-align:center;">${p.gamesPlayed}</td>
                 <td style="text-align:center;">${p.goals}</td>
@@ -286,7 +285,7 @@ async function loadNHLPlayers(){
         html += `</table>`;
         content.innerHTML = html;
     } catch(e) {
-        content.innerHTML = "<div style='color:red;'>Connexion impossible. Si vous êtes sur un ordinateur, essayez d'ouvrir ce fichier via un serveur local ou désactivez temporairement les extensions de blocage.</div>";
+        content.innerHTML = "<div style='color:red;'>Erreur de chargement. Si vous testez sur Replit, assurez-vous d'utiliser l'adresse en HTTPS.</div>";
     }
 }
 </script>
