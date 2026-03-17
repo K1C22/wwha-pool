@@ -51,24 +51,23 @@ input[type="password"]{
     box-shadow:0 4px 4px rgba(0,0,0,0.15);
 }
 
-/* FIX CHECKBOX CENTERING */
-.checkbox-container {
+/* FIX CHECKBOX & TEXT CENTERING */
+.checkbox-group {
     display: flex;
     align-items: center;
-    justify-content: center; /* Centre horizontalement */
-    gap: 8px;
-    width: 100%; /* Prend toute la largeur pour permettre le centrage */
+    justify-content: center;
+    width: 100%;
     margin-bottom: 20px;
+    gap: 10px;
+    font-size: 14px;
     cursor: pointer;
-    font-size: 10pt;
+    user-select: none;
 }
 
 input[type="checkbox"]{
-    width: auto;
+    width: 18px;
+    height: 18px;
     margin: 0;
-    padding: 0;
-    box-shadow: none;
-    transform: scale(1.2);
     cursor: pointer;
 }
 
@@ -76,7 +75,7 @@ button {
     background: #fc723f;
     color: #000000;
     border: none;
-    padding: 10px 20px;
+    padding: 10px 25px;
     border-radius: 2px;
     cursor: pointer;
     font-size: 10pt;
@@ -89,7 +88,6 @@ button {
     display:none;
 }
 
-/* HEADER */
 .header{
     background:#FFFFFF;
     padding:10px 20px;
@@ -123,7 +121,6 @@ button {
     cursor:pointer;
 }
 
-/* NAVBAR */
 .navbar-container{
     background:#FFFFFF;
     padding:10px 20px;
@@ -149,7 +146,6 @@ button {
     background:#fc723f;
 }
 
-/* SUBNAV */
 .subnav{
     margin-top:0;
     display:flex;
@@ -165,13 +161,10 @@ button {
     padding:10px 0;
     color:#333333;
     font-weight:bold;
-    transition: all 0.2s;
 }
 
-.subnav div:hover,
 .subnav div.active{
     background:#fc723f;
-    color:#000000;
 }
 
 .content{
@@ -202,8 +195,9 @@ td {
         <input type="text" placeholder="Identifiant" id="usernameInput">
         <input type="password" placeholder="Mot de passe">
 
-        <label class="checkbox-container">
-            <input type="checkbox" id="rememberMe"> Se souvenir de moi
+        <label class="checkbox-group">
+            <input type="checkbox" id="rememberMe"> 
+            <span>Se souvenir de moi</span>
         </label>
 
         <button onclick="login()">Connexion</button>
@@ -236,15 +230,9 @@ td {
 function login(){
     const username = document.getElementById("usernameInput").value;
     const remember = document.getElementById("rememberMe").checked;
-
     if(username.trim()===""){ alert("Veuillez entrer un identifiant."); return; }
-
-    if(remember){
-        localStorage.setItem("pnhl_user", username);
-    } else {
-        localStorage.removeItem("pnhl_user");
-    }
-
+    if(remember){ localStorage.setItem("pnhl_user", username); } 
+    else { localStorage.removeItem("pnhl_user"); }
     document.getElementById("loginPage").style.display="none";
     document.getElementById("app").style.display="block";
     document.getElementById("usernameDisplay").textContent = username;
@@ -278,17 +266,10 @@ function show(page){
     `;
 
     const subnav=document.getElementById("subnav");
-
     if(page==="vestiaire"){
         subnav.innerHTML=`<div onclick="sub('chambre')">Chambre</div><div onclick="sub('contrats')">Contrats</div>`;
-    } else if(page==="classement"){
-        subnav.innerHTML=`<div onclick="sub('general')">Général</div>`;
     } else if(page==="recrutement"){
         subnav.innerHTML=`<div onclick="sub('echange')">Échange</div><div onclick="sub('joueur')">Joueur autonome</div>`;
-    } else if(page==="reglements"){
-        subnav.innerHTML=`<div onclick="sub('regles')">Règles</div><div onclick="sub('modif')">Modifications</div>`;
-    } else if(page==="histoire"){
-        subnav.innerHTML=`<div onclick="sub('draft')">Draft</div><div onclick="sub('ligue')">Ligue</div><div onclick="sub('franchises')">Franchises</div>`;
     }
 }
 
@@ -298,23 +279,21 @@ function sub(type){
     const clicked=Array.from(subs).find(s=>s.textContent.toLowerCase().includes(type));
     if(clicked) clicked.classList.add("active");
 
-    if(type==="joueur"){
-        loadNHLPlayers();
-    } else {
-        document.getElementById("subcontent").innerHTML = "";
-    }
+    if(type==="joueur") loadNHLPlayers();
+    else document.getElementById("subcontent").innerHTML = "";
 }
 
 async function loadNHLPlayers(){
     const content = document.getElementById("subcontent");
-    content.innerHTML = "Chargement des leaders de la NHL...";
+    content.innerHTML = "Chargement des données en cours...";
     
-    // Utilisation d'une URL de secours si l'API web principale est bloquée par le navigateur
-    const url = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=50";
+    // On utilise un proxy public pour éviter l'erreur CORS
+    const proxy = "https://corsproxy.io/?";
+    const target = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=50";
 
     try {
-        const res = await fetch(url);
-        if(!res.ok) throw new Error("Erreur réseau");
+        const res = await fetch(proxy + encodeURIComponent(target));
+        if(!res.ok) throw new Error();
         const data = await res.json();
         const players = data.points;
 
@@ -332,7 +311,7 @@ async function loadNHLPlayers(){
         html += `</table>`;
         content.innerHTML = html;
     } catch(e) {
-        content.innerHTML = "Erreur : Impossible d'accéder aux données NHL. <br><small>Note : Si vous testez localement, le navigateur peut bloquer l'accès pour des raisons de sécurité (CORS).</small>";
+        content.innerHTML = "<div style='color:red;'>Erreur de connexion aux serveurs NHL. Réessayez dans quelques instants.</div>";
     }
 }
 </script>
