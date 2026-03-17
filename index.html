@@ -89,29 +89,41 @@ button{
     cursor:pointer;
 }
 
-/* NAVIGATION PRINCIPALE */
-.navbar{
-    background:#1f5cc4;
-    display:flex;
-    gap:20px;
+/* DEUXIÈME BANDEAU (ONGLETS PRINCIPAUX) */
+.navbar-container{
+    background:white;
     padding:10px 20px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.1);
+}
+
+.navbar{
+    background:#ccc; /* gris clair */
+    display:flex;
+    gap:15px;
+    padding:8px;
+    border-radius:8px;
 }
 
 .navbar div{
-    color:white;
     cursor:pointer;
+    padding:6px 12px;
+    border-radius:6px;
+    color:#333;
     font-weight:bold;
+    transition: all 0.2s;
 }
 
+.navbar div:hover,
 .navbar div.active{
-    border-bottom:3px solid white;
+    background:white;
+    color:#000;
 }
 
 /* CONTENT */
 .content{
     padding:20px;
     background:#fff;
-    min-height:calc(100vh - 100px);
+    min-height:calc(100vh - 130px);
 }
 
 /* sous onglets */
@@ -126,9 +138,11 @@ button{
     padding:6px 10px;
     background:#ddd;
     border-radius:6px;
+    transition: all 0.2s;
 }
 
-.subnav div.active{
+.subnav div.active,
+.subnav div:hover{
     background:#1f5cc4;
     color:white;
 }
@@ -156,13 +170,15 @@ button{
         <button id="logoutBtn" onclick="logout()">Déconnexion</button>
     </div>
 
-    <!-- NAVIGATION PRINCIPALE -->
-    <div class="navbar">
-        <div onclick="show('vestiaire')">Vestiaire</div>
-        <div onclick="show('classement')">Classement</div>
-        <div onclick="show('recrutement')">Recrutement</div>
-        <div onclick="show('reglements')">Règlements</div>
-        <div onclick="show('histoire')">Histoire</div>
+    <!-- DEUXIÈME BANDEAU BLANC AVEC ONGLET GRIS -->
+    <div class="navbar-container">
+        <div class="navbar">
+            <div onclick="show('vestiaire')">Vestiaire</div>
+            <div onclick="show('classement')">Classement</div>
+            <div onclick="show('recrutement')">Recrutement</div>
+            <div onclick="show('reglements')">Règlements</div>
+            <div onclick="show('histoire')">Histoire</div>
+        </div>
     </div>
 
     <div class="content" id="content"></div>
