@@ -53,15 +53,15 @@ input{
 
 /* Bouton Entrer modifié */
 button {
-    background: #fc723f;              /* Fond orange */
-    color: #000000;                    /* Texte noir */
-    border: none;                      /* Pas de bordure */
-    padding: 8px;                      /* Espacement interne */
-    border-radius: 2px;                /* Coins légèrement arrondis */
-    cursor: pointer;                   /* Curseur main au survol */
-    font-family: 'Aptos', sans-serif; /* Police Aptos */
-    font-size: 10pt;                   /* Taille 12pt */
-    font-weight: bold;                 /* Texte en gras */
+    background: #fc723f;
+    color: #000000;
+    border: none;
+    padding: 8px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-family: 'Aptos', sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
     box-shadow:0 4px 4px rgba(0,0,0,0.15);
 }
 
@@ -111,7 +111,7 @@ button {
     cursor:pointer;
 }
 
-/* DEUXIÈME BANDEAU BLANC AVEC ONGLET GRIS INTÉGRÉ */
+/* NAVBAR */
 .navbar-container{
     background:#FFFFFF;
     padding:10px 20px;
@@ -179,14 +179,13 @@ button {
         <img src="https://raw.githubusercontent.com/K1C22/wwha-pool/main/WWHA13b.png" class="logo">
         <input type="text" placeholder="Identifiant" id="usernameInput">
         <input type="password" placeholder="Mot de passe">
-        <button onclick="login()">Connexion</button> <!-- Bouton modifié -->
+        <button onclick="login()">Connexion</button>
     </div>
 </div>
 
 <!-- APP -->
 <div id="app">
 
-    <!-- BANDEAU HAUT -->
     <div class="header">
         <div class="header-top">
             <h1>PNHL</h1>
@@ -195,7 +194,6 @@ button {
         <div id="usernameDisplay"></div>
     </div>
 
-    <!-- DEUXIÈME BANDEAU BLANC AVEC ONGLET GRIS INTÉGRÉ -->
     <div class="navbar-container">
         <div class="navbar">
             <div onclick="show('vestiaire')">Vestiaire</div>
@@ -291,7 +289,12 @@ function sub(type){
     if(type==="chambre") content="Contenu Chambre";
     if(type==="contrats") content="Contenu Contrats";
     if(type==="echange") content="Contenu Échange";
-    if(type==="joueur") content="Contenu Joueurs autonomes";
+
+    if(type==="joueur"){
+        loadNHLPlayers();
+        return;
+    }
+
     if(type==="regles") content="Liste des règles";
     if(type==="modif") content="Historique des modifications";
     if(type==="draft") content="Historique Draft";
@@ -302,6 +305,44 @@ function sub(type){
 
     const clicked = Array.from(subs).find(s => s.textContent.replace(/\s/g,"").toLowerCase().includes(type));
     if(clicked) clicked.classList.add("active");
+}
+
+/* AJOUT NHL */
+async function loadNHLPlayers(){
+    const url = "https://api-web.nhle.com/v1/skater-stats-leaders/current?categories=points&limit=1000";
+
+    try{
+        const response = await fetch(url);
+        const data = await response.json();
+
+        let html = `
+        <table style="width:100%; border-collapse:collapse;">
+            <tr style="background:#F0F0F0; font-weight:bold;">
+                <td style="padding:8px;">Nom</td>
+                <td>Équipe</td>
+                <td>Matchs</td>
+                <td>Points</td>
+            </tr>
+        `;
+
+        data.points.forEach(player => {
+            html += `
+            <tr>
+                <td style="padding:6px;">${player.name.default}</td>
+                <td>${player.teamAbbrev}</td>
+                <td>${player.gamesPlayed}</td>
+                <td>${player.points}</td>
+            </tr>
+            `;
+        });
+
+        html += `</table>`;
+
+        document.getElementById("subcontent").innerHTML = html;
+
+    }catch(e){
+        document.getElementById("subcontent").innerHTML = "Erreur chargement NHL";
+    }
 }
 </script>
 
