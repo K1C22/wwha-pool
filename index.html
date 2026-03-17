@@ -2,143 +2,210 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>WWHA - Connexion</title>
+<title>WWHA</title>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Aptos:ital,wght@0,400;1,400&display=swap');
+
+*{
+    font-family:'Aptos', sans-serif;
+}
 
 body{
-font-family: Aptos, Aptos, Aptos;
-background:#efefef;
-display:flex;
-align-items:center;
-justify-content:center;
-height:100vh;
-margin:0;
+    margin:0;
+    background:#efefef;
+}
+
+/* LOGIN */
+#loginPage{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
 }
 
 .login-container{
-background:white;
-padding:40px;
-width:360px;
-border-radius:12px;
-box-shadow:0 10px 25px rgba(0,0,0,0.15);
-display:flex;
-flex-direction:column;
+    background:white;
+    padding:40px;
+    width:360px;
+    border-radius:12px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.15);
+    display:flex;
+    flex-direction:column;
 }
 
 .logo{
-width:150px;
-margin:auto;
-margin-bottom:25px;
-opacity:0.35;
-}
-
-label{
-font-size:12px;
-letter-spacing:1px;
-margin-top:10px;
-margin-bottom:6px;
-font-weight:bold;
+    width:150px;
+    margin:auto;
+    margin-bottom:25px;
+    opacity:0.35;
 }
 
 input{
-width:100%;
-padding:12px;
-border-radius:8px;
-border:2px solid #222;
-font-size:14px;
-box-sizing:border-box;
+    padding:12px;
+    border-radius:8px;
+    border:2px solid #222;
+    margin-bottom:10px;
 }
 
-.password-field{
-position:relative;
+button{
+    background:#1f5cc4;
+    color:white;
+    border:none;
+    padding:12px;
+    border-radius:8px;
+    cursor:pointer;
 }
 
-.eye{
-position:absolute;
-right:12px;
-top:50%;
-transform:translateY(-50%);
-cursor:pointer;
-opacity:0.6;
+/* APP */
+#app{
+    display:none;
 }
 
-.remember{
-margin-top:15px;
-display:flex;
-align-items:center;
-gap:8px;
-font-size:14px;
+.navbar{
+    background:#1f5cc4;
+    padding:15px;
+    display:flex;
+    gap:20px;
 }
 
-.login-btn{
-margin-top:20px;
-background:#1f5cc4;
-color:white;
-border:none;
-padding:14px;
-border-radius:8px;
-font-weight:bold;
-letter-spacing:1px;
-cursor:pointer;
+.navbar div{
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
 }
 
-.login-btn:hover{
-background:#17479a;
+.content{
+    padding:20px;
 }
 
-.forgot{
-text-align:center;
-margin-top:20px;
-font-size:14px;
-color:#666;
-cursor:pointer;
+/* sous onglets */
+.subnav{
+    margin-top:10px;
+    display:flex;
+    gap:15px;
 }
 
+.subnav div{
+    cursor:pointer;
+    padding:6px 10px;
+    background:#ddd;
+    border-radius:6px;
+}
 </style>
 
 </head>
 
 <body>
 
-<div class="login-container">
-
-<img src="WWHA13b.png" class="logo">
-
-<label>IDENTIFIANT</label>
-<input type="text" placeholder="Votre identifiant">
-
-<label>MOT DE PASSE</label>
-
-<div class="password-field">
-<input id="password" type="password" placeholder="Votre mot de passe">
-<span class="eye" onclick="toggle()">👁</span>
+<!-- LOGIN -->
+<div id="loginPage">
+    <div class="login-container">
+        <img src="https://raw.githubusercontent.com/ton-utilisateur/ton-depot/main/WWHA13b.png" class="logo">
+        <input type="text" placeholder="Identifiant">
+        <input type="password" placeholder="Mot de passe">
+        <button onclick="login()">CONNEXION</button>
+    </div>
 </div>
 
-<div class="remember">
-<input type="checkbox">
-<span>Se souvenir du GM</span>
-</div>
+<!-- APP -->
+<div id="app">
 
-<button class="login-btn">CONNEXION</button>
+    <div class="navbar">
+        <div onclick="show('vestiaire')">Vestiaire</div>
+        <div onclick="show('classement')">Classement</div>
+        <div onclick="show('recrutement')">Recrutement</div>
+        <div onclick="show('reglements')">Règlements</div>
+        <div onclick="show('histoire')">Histoire</div>
+    </div>
 
-<div class="forgot">Mot de passe oublié?</div>
+    <div class="content" id="content"></div>
 
 </div>
 
 <script>
 
-function toggle(){
-let p=document.getElementById("password")
-
-if(p.type==="password"){
-p.type="text"
-}else{
-p.type="password"
+/* LOGIN */
+function login(){
+    document.getElementById("loginPage").style.display="none";
+    document.getElementById("app").style.display="block";
+    show('vestiaire');
 }
+
+/* NAVIGATION */
+function show(page){
+
+    let html = "";
+
+    if(page==="vestiaire"){
+        html = `
+        <h2>Vestiaire</h2>
+        <div class="subnav">
+            <div onclick="sub('chambre')">Chambre</div>
+            <div onclick="sub('contrats')">Contrats</div>
+        </div>
+        <div id="subcontent">Choisir un onglet</div>`;
+    }
+
+    if(page==="classement"){
+        html = `<h2>Classement</h2>`;
+    }
+
+    if(page==="recrutement"){
+        html = `
+        <h2>Recrutement</h2>
+        <div class="subnav">
+            <div onclick="sub('echange')">Échange</div>
+            <div onclick="sub('joueur')">Joueur autonome</div>
+        </div>
+        <div id="subcontent"></div>`;
+    }
+
+    if(page==="reglements"){
+        html = `
+        <h2>Règlements</h2>
+        <div class="subnav">
+            <div onclick="sub('regles')">Règles</div>
+            <div onclick="sub('modif')">Modifications</div>
+        </div>
+        <div id="subcontent"></div>`;
+    }
+
+    if(page==="histoire"){
+        html = `
+        <h2>Histoire</h2>
+        <div class="subnav">
+            <div onclick="sub('draft')">Draft</div>
+            <div onclick="sub('ligue')">Ligue</div>
+            <div onclick="sub('franchises')">Franchises</div>
+        </div>
+        <div id="subcontent"></div>`;
+    }
+
+    document.getElementById("content").innerHTML = html;
+}
+
+/* SOUS-ONGLETS */
+function sub(type){
+
+    let content = "";
+
+    if(type==="chambre") content="Contenu Chambre";
+    if(type==="contrats") content="Contenu Contrats";
+    if(type==="echange") content="Contenu Échange";
+    if(type==="joueur") content="Contenu Joueurs autonomes";
+    if(type==="regles") content="Liste des règles";
+    if(type==="modif") content="Historique des modifications";
+    if(type==="draft") content="Historique Draft";
+    if(type==="ligue") content="Historique Ligue";
+    if(type==="franchises") content="Historique Franchises";
+
+    document.getElementById("subcontent").innerHTML = content;
 }
 
 </script>
 
+</body>
+</html>
 </body>
 </html>
