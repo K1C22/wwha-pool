@@ -91,9 +91,11 @@ button{
     font-size:12pt;
     font-weight:bold;
     color:#333333;
-    text-align:left; /* à gauche sous PNHL */
+    text-align:left;
+    font-family:'Aptos', sans-serif;
 }
 
+/* Bouton déconnexion */
 #logoutBtn{
     background:#FFFFFF;
     color:#000000;
@@ -112,11 +114,11 @@ button{
 }
 
 .navbar{
-    background:#E3E3E3; /* gris clair */
+    background:#F5F5F5; /* gris clair */
     display:flex;
     gap:10px;
     padding:8px;
-    border-radius:8px; /* arrondi sur les bords */
+    border-radius:4px; /* arrondi sur les bords */
 }
 
 .navbar div{
@@ -125,7 +127,7 @@ button{
     min-width:120px;    
     text-align:center;
     padding:10px 0;
-    border-radius:8px;  /* arrondi sur les bords */
+    border-radius:0px;  /* arrondi sur les bords */
     color:#333333; 
     font-weight:bold;
     transition: all 0.2s;
@@ -187,6 +189,7 @@ button{
             <h1>PNHL</h1>
             <button id="logoutBtn" onclick="logout()">Déconnexion</button>
         </div>
+        <!-- Nom utilisateur aligné à gauche -->
         <div id="usernameDisplay"></div>
     </div>
 
