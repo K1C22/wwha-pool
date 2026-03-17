@@ -87,9 +87,10 @@ button{
     border-radius:6px;
     font-weight:bold;
     cursor:pointer;
+    color:black; /* Déconnexion en noir */
 }
 
-/* DEUXIÈME BANDEAU (ONGLETS PRINCIPAUX) */
+/* DEUXIÈME BANDEAU BLANC AVEC ONGLET GRIS */
 .navbar-container{
     background:white;
     padding:10px 20px;
@@ -97,7 +98,7 @@ button{
 }
 
 .navbar{
-    background:#ccc; /* gris clair */
+    background:#d9d9d9; /* gris clair intégré */
     display:flex;
     gap:15px;
     padding:8px;
@@ -170,7 +171,7 @@ button{
         <button id="logoutBtn" onclick="logout()">Déconnexion</button>
     </div>
 
-    <!-- DEUXIÈME BANDEAU BLANC AVEC ONGLET GRIS -->
+    <!-- DEUXIÈME BANDEAU BLANC AVEC ONGLET GRIS INTÉGRÉ -->
     <div class="navbar-container">
         <div class="navbar">
             <div onclick="show('vestiaire')">Vestiaire</div>
