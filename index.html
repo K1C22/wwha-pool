@@ -67,6 +67,7 @@ button{
     padding:15px;
     display:flex;
     gap:20px;
+    align-items:center;
 }
 
 .navbar div{
@@ -125,14 +126,60 @@ button{
 
 <script>
 
+/* UTILISATEURS */
+const users = [
+    {username:"Charles", password:"4444"},
+    {username:"Admin", password:"1234"}
+];
+
+/* AUTO LOGIN */
+window.onload = function(){
+    let savedUser = localStorage.getItem("user");
+    if(savedUser){
+        enterApp(savedUser);
+    }
+};
+
 /* LOGIN */
 function login(){
+
+    let user = document.querySelector("input[type='text']").value;
+    let pass = document.querySelector("input[type='password']").value;
+
+    let found = users.find(u => u.username === user && u.password === pass);
+
+    if(found){
+        localStorage.setItem("user", user);
+        enterApp(user);
+    } else {
+        alert("Identifiant ou mot de passe incorrect");
+    }
+}
+
+/* ENTRER DANS LE SITE */
+function enterApp(user){
     document.getElementById("loginPage").style.display="none";
     document.getElementById("app").style.display="block";
+
+    // afficher le nom connecté + déconnexion
+    if(!document.querySelector(".navbar .user")) {
+        let userDiv = document.createElement("div");
+        userDiv.className="user";
+        userDiv.style.marginLeft="auto";
+        userDiv.innerHTML = `👤 ${user} | <span style="cursor:pointer;" onclick="logout()">Déconnexion</span>`;
+        document.querySelector(".navbar").appendChild(userDiv);
+    }
+
     show('vestiaire');
 }
 
-/* NAVIGATION */
+/* LOGOUT */
+function logout(){
+    localStorage.removeItem("user");
+    location.reload();
+}
+
+/* NAVIGATION PRINCIPALE */
 function show(page){
 
     let html = "";
@@ -193,19 +240,17 @@ function sub(type){
     if(type==="chambre") content="Contenu Chambre";
     if(type==="contrats") content="Contenu Contrats";
     if(type==="echange") content="Contenu Échange";
-    if(type==="joueur") content="Contenu Joueurs autonomes";
+    if(type==="joueur") content="Joueurs autonomes";
     if(type==="regles") content="Liste des règles";
-    if(type==="modif") content="Historique des modifications";
-    if(type==="draft") content="Historique Draft";
-    if(type==="ligue") content="Historique Ligue";
-    if(type==="franchises") content="Historique Franchises";
+    if(type==="modif") content="Modifications";
+    if(type==="draft") content="Draft";
+    if(type==="ligue") content="Ligue";
+    if(type==="franchises") content="Franchises";
 
     document.getElementById("subcontent").innerHTML = content;
 }
 
 </script>
 
-</body>
-</html>
 </body>
 </html>
