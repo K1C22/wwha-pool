@@ -77,22 +77,16 @@ button{
 .header h1{
     margin:0;
     font-size:20pt;
-}
-
-.header .user{
-    display:flex;
-    align-items:center;
-    gap:15px;
+    font-weight:bold;
 }
 
 #logoutBtn{
-    background:#c41f1f;
-    padding:6px 10px;
+    background:white;
+    border:1px solid #222;
+    padding:6px 12px;
     border-radius:6px;
-    color:white;
     font-weight:bold;
     cursor:pointer;
-    border:none;
 }
 
 /* NAVIGATION PRINCIPALE */
@@ -159,10 +153,7 @@ button{
     <!-- BANDEAU HAUT -->
     <div class="header">
         <h1>PNHL</h1>
-        <div class="user">
-            <span id="usernameDisplay">GM</span>
-            <button id="logoutBtn" onclick="logout()">Déconnexion</button>
-        </div>
+        <button id="logoutBtn" onclick="logout()">Déconnexion</button>
     </div>
 
     <!-- NAVIGATION PRINCIPALE -->
@@ -182,8 +173,6 @@ button{
 
 /* LOGIN */
 function login(){
-    const username = document.getElementById("usernameInput").value || "GM";
-    document.getElementById("usernameDisplay").textContent = username;
     document.getElementById("loginPage").style.display="none";
     document.getElementById("app").style.display="block";
     show('vestiaire');
@@ -198,7 +187,6 @@ function logout(){
 
 /* NAVIGATION */
 function show(page){
-    // onglet actif
     const tabs = document.querySelectorAll(".navbar div");
     tabs.forEach(t => t.classList.remove("active"));
     const activeTab = Array.from(tabs).find(t => t.textContent.toLowerCase()===page);
@@ -272,7 +260,6 @@ function sub(type){
 
     document.getElementById("subcontent").innerHTML = content;
 
-    // sous onglet actif
     const clicked = Array.from(subs).find(s => s.textContent.replace(/\s/g,"").toLowerCase().includes(type));
     if(clicked) clicked.classList.add("active");
 }
