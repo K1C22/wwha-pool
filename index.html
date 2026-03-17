@@ -1,170 +1,185 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-12">
-<title>PNHL</title>
+<meta charset="UTF-8"> <!-- Encodage UTF-8 pour les caractères spéciaux -->
+<title>PNHL</title> <!-- Titre affiché dans l’onglet du navigateur -->
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Aptos:ital,wght@0,400;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Aptos:ital,wght@0,400;1,400&display=swap'); 
+/* Import de la police Aptos depuis Google Fonts */
 
+/* Appliquer la police Aptos à tous les éléments et inclure le box-sizing */
 *{
     font-family:'Aptos', sans-serif;
     box-sizing: border-box;
 }
 
+/* Style général du corps de la page */
 body{
-    margin:0;
-    background:#F0F0F0;
+    margin:0; /* Supprime les marges par défaut */
+    background:#FFFFFF; /* Couleur de fond gris clair */
 }
 
 /* LOGIN */
 #loginPage{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    height:100vh;
+    display:flex; /* Utilisation de flex pour centrer le contenu */
+    align-items:center; /* Centre verticalement */
+    justify-content:center; /* Centre horizontalement */
+    height:100vh; /* Hauteur de la fenêtre */
 }
 
+/* Conteneur du formulaire de connexion */
 .login-container{
-    background:#F0F0F0;
-    padding:40px;
-    width:360px;
-    border-radius:4px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.15);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
+    background:#F0F0F0; /* Fond gris clair */
+    padding:40px; /* Espacement interne */
+    width:360px; /* Largeur fixe */
+    border-radius:2px; /* Coins légèrement arrondis */
+    box-shadow:0 10px 25px rgba(0,0,0,0.15); /* Ombre portée */
+    display:flex; /* Flexbox pour l'organisation verticale */
+    flex-direction:column; 
+    align-items:center; /* Centre le contenu horizontalement */
 }
 
+/* Logo du login */
 .logo{
-    width:300px;
-    margin-bottom:50px;
-    opacity:1.00;
+    width:300px; /* Largeur de l'image */
+    margin-bottom:50px; /* Espace sous le logo */
+    opacity:0.00; /* Opacité pleine */
 }
 
+/* Style des champs de saisie */
 input{
-    width:100%;
-    padding:12px;
-    border-radius:8px;
-    border:2px solid #222222;
-    margin-bottom:10px;
+    width:100%; /* Occupe toute la largeur du conteneur */
+    padding:12px; /* Espacement interne */
+    border-radius:2px; /* Coins arrondis */
+    border:2px solid #F5F5F5; /* Bordure sombre */
+    margin-bottom:10px; /* Espace sous chaque champ */
 }
 
+/* Style du bouton de connexion */
 button{
-    background:#1F5CC4;
-    color:#F0F0F0;
-    border:none;
-    padding:12px;
-    border-radius:4px;
-    cursor:pointer;
+    background:#F5F5F5; /* Bleu */
+    color:#F0F0F0; /* Texte clair */
+    border:none; /* Pas de bordure */
+    padding:12px; /* Espacement interne */
+    border-radius:2px; /* Coins légèrement arrondis */
+    cursor:pointer; /* Curseur main au survol */
 }
 
 /* APP */
 #app{
-    display:none;
+    display:none; /* Masqué au départ, affiché après login */
 }
 
 /* BANDEAU HAUT */
 .header{
-    background:#FFFFFF;
-    padding:10px 20px;
+    background:#FFFFFF; /* Fond blanc */
+    padding:10px 20px; /* Espacement interne */
     display:flex;
-    flex-direction:column;
-    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+    flex-direction:column; /* Colonne pour empiler titre et utilisateur */
+    box-shadow:0 2px 5px rgba(0,0,0,0.1); /* Légère ombre */
 }
 
+/* Ligne supérieure du bandeau (titre et bouton) */
 .header-top{
-    width:100%;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+    width:100%; /* Prend toute la largeur */
+    display:flex; /* Flex pour alignement horizontal */
+    justify-content:space-between; /* Espace entre titre et bouton */
+    align-items:center; /* Alignement vertical centré */
 }
 
+/* Style du titre PNHL */
 .header h1{
-    margin:0;
-    font-size:20pt;
-    font-weight:bold;
+    margin:0; /* Supprime la marge par défaut */
+    font-size:20pt; /* Taille du texte */
+    font-weight:bold; /* Gras */
 }
 
+/* Affichage du nom de l’utilisateur sous PNHL */
 #usernameDisplay{
-    margin-top:4px;
-    font-size:12pt;
-    font-weight:bold;
-    color:#333333;
-    text-align:left;
-    font-family:'Aptos', sans-serif;
+    margin-top:4px; /* Petit espace au-dessus */
+    font-size:12pt; /* Taille du texte */
+    font-weight:bold; /* Gras */
+    color:#333333; /* Gris foncé */
+    text-align:left; /* Aligné à gauche */
+    font-family:'Aptos', sans-serif; /* Police Aptos */
 }
 
-/* Bouton déconnexion */
+/* Bouton Déconnexion */
 #logoutBtn{
-    background:#F5F5F5;
-    color:#000000;
-    border:1px solid #F5F5F5;
-    padding:6px 12px;
-    border-radius:2px;
-    font-weight:bold;
-    cursor:pointer;
+    background:#F5F5F5; /* Fond blanc-gris clair */
+    color:#000000; /* Texte noir */
+    border:1px solid #F5F5F5; /* Bordure ton sur ton */
+    padding:6px 12px; /* Espacement interne */
+    border-radius:2px; /* Coins arrondis */
+    font-weight:bold; /* Texte en gras */
+    cursor:pointer; /* Curseur main au survol */
 }
 
 /* DEUXIÈME BANDEAU BLANC AVEC ONGLET GRIS INTÉGRÉ */
 .navbar-container{
-    background:#FFFFFF;
-    padding:10px 20px;
-    box-shadow:0 1px 3px rgba(0,0,0,0.1);
+    background:#FFFFFF; /* Fond blanc */
+    padding:10px 20px; /* Espacement interne */
+    box-shadow:0 1px 3px rgba(0,0,0,0.1); /* Légère ombre */
 }
 
+/* Barre d’onglets */
 .navbar{
-    background:#F0F0F0; /* gris clair */
-    display:flex;
-    gap:6px;
-    padding:4px;
-    border-radius:2px; /* arrondi sur les bords */
+    background:#F0F0F0; /* Gris clair */
+    display:flex; /* Flex horizontal pour les onglets */
+    gap:6px; /* Espacement entre les onglets */
+    padding:4px; /* Espacement interne */
+    border-radius:2px; /* Coins légèrement arrondis */
 }
 
+/* Chaque onglet */
 .navbar div{
-    cursor:pointer;
-    flex:1;             
-    min-width:120px;    
-    text-align:center;
-    padding:10px 0;
-    border-radius:0px;  /* arrondi sur les bords */
-    color:#333333; 
-    font-weight:bold;
-    transition: all 0.2s;
+    cursor:pointer; /* Curseur main */
+    flex:1; /* Chaque onglet prend une part égale */
+    min-width:120px; /* Largeur minimale */
+    text-align:center; /* Texte centré */
+    padding:10px 0; /* Espacement vertical */
+    border-radius:0px; /* Pas d’arrondi individuel */
+    color:#333333; /* Texte gris foncé */
+    font-weight:bold; /* Gras */
+    transition: all 0.2s; /* Animation lors du hover ou clic */
 }
 
+/* Surbrillance au survol ou onglet actif */
 .navbar div:hover,
 .navbar div.active{
-    background:#FFFFFF;
-    color:#000000;
+    background:#FFFFFF; /* Fond blanc */
+    color:#000000; /* Texte noir */
 }
 
-/* CONTENT */
+/* Contenu principal */
 .content{
-    padding:20px;
-    background:#FFFFFF;
-    min-height:calc(100vh - 160px);
+    padding:20px; /* Espacement interne */
+    background:#FFFFFF; /* Fond blanc */
+    min-height:calc(100vh - 160px); /* Hauteur minimale */
 }
 
-/* sous onglets */
+/* SOUS-ONGLETS */
 .subnav{
-    margin-top:10px;
-    display:flex;
-    gap:15px;
+    margin-top:10px; /* Espace au-dessus */
+    display:flex; /* Flex horizontal */
+    gap:15px; /* Espacement entre sous-onglets */
 }
 
+/* Chaque sous-onglet */
 .subnav div{
-    cursor:pointer;
-    padding:6px 10px;
-    background:#DDDDDD;
-    border-radius:4px;
-    transition: all 0.2s;
+    cursor:pointer; /* Curseur main */
+    padding:6px 10px; /* Espacement interne */
+    background:#DDDDDD; /* Gris clair */
+    border-radius:4px; /* Coins légèrement arrondis */
+    transition: all 0.2s; /* Animation hover/clic */
 }
 
+/* Surbrillance sous-onglet actif ou au survol */
 .subnav div.active,
 .subnav div:hover{
-    background:#1F5CC4;
-    color:#FFFFFF;
+    background:#1F5CC4; /* Bleu */
+    color:#FFFFFF; /* Texte blanc */
 }
 </style>
 </head>
@@ -173,10 +188,10 @@ button{
 <!-- LOGIN -->
 <div id="loginPage">
     <div class="login-container">
-        <img src="https://raw.githubusercontent.com/K1C22/wwha-pool/main/WWHA13b.png" class="logo"> 
-        <input type="text" placeholder="Identifiant" id="usernameInput">
-        <input type="password" placeholder="Mot de passe">
-        <button onclick="login()">CONNEXION</button>
+        <img src="https://raw.githubusercontent.com/K1C22/wwha-pool/main/WWHA13b.png" class="logo"> <!-- Logo -->
+        <input type="text" placeholder="Identifiant" id="usernameInput"> <!-- Champ identifiant -->
+        <input type="password" placeholder="Mot de passe"> <!-- Champ mot de passe -->
+        <button onclick="login()">CONNEXION</button> <!-- Bouton connexion -->
     </div>
 </div>
 
@@ -186,8 +201,8 @@ button{
     <!-- BANDEAU HAUT -->
     <div class="header">
         <div class="header-top">
-            <h1>PNHL</h1>
-            <button id="logoutBtn" onclick="logout()">Déconnexion</button>
+            <h1>PNHL</h1> <!-- Titre du site -->
+            <button id="logoutBtn" onclick="logout()">Déconnexion</button> <!-- Bouton déconnexion -->
         </div>
         <!-- Nom utilisateur aligné à gauche -->
         <div id="usernameDisplay"></div>
@@ -204,36 +219,35 @@ button{
         </div>
     </div>
 
-    <div class="content" id="content"></div>
-
+    <div class="content" id="content"></div> <!-- Contenu principal -->
 </div>
 
 <script>
 /* LOGIN */
 function login(){
-    const username = document.getElementById("usernameInput").value;
+    const username = document.getElementById("usernameInput").value; // Récupère l'identifiant
     if(username.trim() === "") { alert("Veuillez entrer un identifiant."); return; }
 
-    document.getElementById("loginPage").style.display="none";
-    document.getElementById("app").style.display="block";
-    document.getElementById("usernameDisplay").textContent = username;
-    show('vestiaire');
+    document.getElementById("loginPage").style.display="none"; // Masque la page login
+    document.getElementById("app").style.display="block"; // Affiche l'application
+    document.getElementById("usernameDisplay").textContent = username; // Affiche le nom utilisateur
+    show('vestiaire'); // Onglet par défaut
 }
 
 /* LOGOUT */
 function logout(){
-    document.getElementById("app").style.display="none";
-    document.getElementById("loginPage").style.display="flex";
-    document.getElementById("usernameInput").value = "";
-    document.getElementById("usernameDisplay").textContent = "";
+    document.getElementById("app").style.display="none"; // Masque l'app
+    document.getElementById("loginPage").style.display="flex"; // Affiche le login
+    document.getElementById("usernameInput").value = ""; // Vide le champ identifiant
+    document.getElementById("usernameDisplay").textContent = ""; // Vide le nom affiché
 }
 
 /* NAVIGATION */
 function show(page){
     const tabs = document.querySelectorAll(".navbar div");
-    tabs.forEach(t => t.classList.remove("active"));
-    const activeTab = Array.from(tabs).find(t => t.textContent.toLowerCase()===page);
-    if(activeTab) activeTab.classList.add("active");
+    tabs.forEach(t => t.classList.remove("active")); // Supprime la classe active de tous les onglets
+    const activeTab = Array.from(tabs).find(t => t.textContent.toLowerCase()===page); 
+    if(activeTab) activeTab.classList.add("active"); // Active l'onglet sélectionné
 
     let html = "";
 
@@ -282,14 +296,14 @@ function show(page){
         <div id="subcontent"></div>`;
     }
 
-    document.getElementById("content").innerHTML = html;
+    document.getElementById("content").innerHTML = html; // Insère le contenu
 }
 
 /* SOUS-ONGLETS */
 function sub(type){
     let content = "";
     const subs = document.querySelectorAll(".subnav div");
-    subs.forEach(s => s.classList.remove("active"));
+    subs.forEach(s => s.classList.remove("active")); // Retire l'active de tous
 
     if(type==="chambre") content="Contenu Chambre";
     if(type==="contrats") content="Contenu Contrats";
@@ -301,12 +315,15 @@ function sub(type){
     if(type==="ligue") content="Historique Ligue";
     if(type==="franchises") content="Historique Franchises";
 
-    document.getElementById("subcontent").innerHTML = content;
+    document.getElementById("subcontent").innerHTML = content; // Affiche contenu
 
     const clicked = Array.from(subs).find(s => s.textContent.replace(/\s/g,"").toLowerCase().includes(type));
-    if(clicked) clicked.classList.add("active");
+    if(clicked) clicked.classList.add("active"); // Active le sous-onglet sélectionné
 }
 </script>
+
+</body>
+</html>
 
 </body>
 </html>
