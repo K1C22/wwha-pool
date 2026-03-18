@@ -8,12 +8,12 @@
         :root { --pnhl: #fc723f; }
         * { font-family: 'Aptos', sans-serif; box-sizing: border-box; }
         body { margin: 0; background: #f8f9fa; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--pnhl); padding-bottom: 15px; margin-bottom: 20px; background: white; padding: 20px; border-radius: 8px; }
-        .nav { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--pnhl); padding: 20px; background: white; border-radius: 8px; margin-bottom: 20px; }
+        .nav { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
         .btn { padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; background: #eee; }
         .btn.active { background: var(--pnhl); color: white; }
         .status { font-size: 0.8rem; padding: 5px 12px; border-radius: 20px; font-weight: bold; background: #e6ffed; color: #28a745; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         th { text-align: left; padding: 15px; background: #fafafa; border-bottom: 1px solid #eee; color: #666; font-size: 0.8rem; }
         td { padding: 12px 15px; border-bottom: 1px solid #f9f9f9; }
         .team-logo { width: 22px; vertical-align: middle; margin-right: 10px; }
@@ -23,7 +23,7 @@
 
 <div class="header">
     <h1 style="margin:0;">PNHL <span style="font-weight:normal; color:#999;">| Admin</span></h1>
-    <div id="apiStatus" class="status">Connexion Directe NHL</div>
+    <div id="apiStatus" class="status">Connexion Directe Navigateur</div>
 </div>
 
 <div class="nav">
@@ -31,38 +31,33 @@
     <button id="btn-goalies" class="btn" onclick="load('goalies')">Gardiens</button>
 </div>
 
-<div id="tableContainer" style="text-align:center; padding:50px; font-weight:bold; color:var(--pnhl);">
-    Récupération des données NHL...
+<div id="tableContainer" style="text-align:center; padding:50px;">
+    Chargement des données en cours...
 </div>
 
 <script>
-    // ON UTILISE UN TUNNEL (PROXY) PUBLIC POUR ÉVITER LE BLOCAGE
-    const TUNNEL = "https://api.allorigins.win/get?url=";
+    // Proxy AllOrigins pour contourner le blocage Cross-Origin (CORS)
+    const PROXY = "https://api.allorigins.win/get?url=";
 
     async function load(type) {
         const container = document.getElementById('tableContainer');
-        const status = document.getElementById('apiStatus');
-        
-        container.innerHTML = "Mise à jour des stats...";
         
         document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
         document.getElementById(`btn-${type}`).classList.add('active');
 
-        // URL directe de la NHL
         const nhlUrl = type === 'goalies' 
             ? "https://api-web.nhle.com/v1/goalie-stats-now/en" 
             : "https://api-web.nhle.com/v1/skater-stats-now/en";
 
         try {
-            // Requête via le tunnel pour contourner les protections serveurs
-            const resp = await fetch(`${TUNNEL}${encodeURIComponent(nhlUrl)}`);
-            const wrapper = await resp.json();
+            const resp = await fetch(`${PROXY}${encodeURIComponent(nhlUrl)}`);
+            if (!resp.ok) throw new Error("Accès refusé");
             
-            // On déballe le JSON de la NHL
-            const result = JSON.parse(wrapper.contents); 
-            const players = result.data;
+            const wrapper = await resp.json();
+            const data = JSON.parse(wrapper.contents);
+            const players = data.data;
 
-            // Tri par points ou victoires
+            // Tri
             if(type === 'skaters') players.sort((a,b) => b.points - a.points);
             else players.sort((a,b) => b.wins - a.wins);
 
@@ -70,7 +65,7 @@
             if(type === 'skaters') {
                 html += `<th>PJ</th><th>B</th><th>A</th><th style="text-align:center">PTS</th></tr>`;
                 players.slice(0, 100).forEach(p => {
-                    const name = p.skaterFullName || `${p.firstName.default || p.firstName} ${p.lastName.default || p.lastName}`;
+                    const name = p.skaterFullName || (p.firstName?.default + " " + p.lastName?.default);
                     html += `<tr>
                         <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg"><b>${name}</b></td>
                         <td>${p.teamAbbrev}</td><td>${p.gamesPlayed}</td><td>${p.goals}</td><td>${p.assists}</td>
@@ -78,22 +73,20 @@
                     </tr>`;
                 });
             } else {
-                html += `<th>PJ</th><th>V</th><th>D</th><th>MOY</th><th>%ARR</th></tr>`;
+                html += `<th>PJ</th><th>V</th><th>D</th><th>%ARR</th></tr>`;
                 players.slice(0, 100).forEach(p => {
-                    const name = p.goalieFullName || `${p.firstName.default || p.firstName} ${p.lastName.default || p.lastName}`;
+                    const name = p.goalieFullName || (p.firstName?.default + " " + p.lastName?.default);
                     html += `<tr>
                         <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg"><b>${name}</b></td>
                         <td>${p.teamAbbrev}</td><td>${p.gamesPlayed}</td><td>${p.wins}</td><td>${p.losses}</td>
-                        <td>${p.goalsAgainstAvg ? p.goalsAgainstAvg.toFixed(2) : '0.00'}</td>
-                        <td>${p.savePctg ? (p.savePctg * 100).toFixed(1) : '0.0'}%</td>
+                        <td>${(p.savePctg * 100).toFixed(1)}%</td>
                     </tr>`;
                 });
             }
             container.innerHTML = html + "</table>";
 
         } catch (err) {
-            console.error(err);
-            container.innerHTML = `<div style="color:red; padding:20px;">Échec de la connexion NHL. Réessaie.</div>`;
+            container.innerHTML = `<div style="color:red;">Erreur de connexion NHL. Le pare-feu bloque encore.</div>`;
         }
     }
 
