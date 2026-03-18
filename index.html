@@ -3,162 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PNHL - Gestion Pool</title>
+    <title>PNHL | Admin</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Aptos:wght@400;700&display=swap');
+        
+        :root { --pnhl-orange: #fc723f; --pnhl-gray: #f5f5f5; }
+
         * { font-family: 'Aptos', sans-serif; box-sizing: border-box; }
-        body { margin: 0; background: #fdfdfd; color: #333; }
+        body { margin: 0; background: #fff; color: #333; }
 
-        /* HEADER & NAV */
-        .header { background: white; padding: 20px; border-bottom: 2px solid #fc723f; display: flex; justify-content: space-between; align-items: center; }
-        .navbar-container { display: flex; justify-content: center; padding: 15px; background: white; }
-        .navbar { display: flex; gap: 10px; width: 90%; max-width: 900px; }
-        .nav-item { flex: 1; text-align: center; padding: 12px; background: #f0f0f0; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.3s; }
-        .nav-item.active { background: #fc723f; color: white; }
+        /* HEADER */
+        .header { 
+            padding: 15px 25px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid var(--pnhl-orange);
+        }
+        .header h1 { margin: 0; font-size: 1.4rem; font-weight: bold; }
+        .header span { color: #999; font-weight: normal; }
+        .api-status { font-size: 0.75rem; background: #e6f7ff; color: #1890ff; padding: 4px 8px; border-radius: 4px; border: 1px solid #91d5ff; }
 
-        /* CONTENU */
-        .content { padding: 20px; max-width: 1200px; margin: 0 auto; }
-        .search-box { width: 100%; padding: 15px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        /* NAV */
+        .nav-container { display: flex; justify-content: center; padding: 20px; gap: 10px; }
+        .nav-item { 
+            padding: 12px 40px; 
+            background: var(--pnhl-gray); 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: 0.2s;
+            border: none;
+            flex: 0 1 300px;
+            text-align: center;
+        }
+        .nav-item.active { background: var(--pnhl-orange); color: white; }
+
+        /* CONTENT */
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+        .search-box { 
+            width: 100%; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            font-size: 1rem;
+            outline-color: var(--pnhl-orange);
+        }
+
+        /* TABLE */
+        .card { background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #fafafa; padding: 15px; text-align: left; font-size: 0.8rem; color: #888; text-transform: uppercase; border-bottom: 1px solid #eee; }
+        td { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; }
+        tr:hover { background: #fffaf9; }
+
+        .player-cell { display: flex; align-items: center; gap: 12px; }
+        .team-logo { width: 24px; height: 24px; object-fit: contain; }
+        .pos-tag { font-size: 0.7rem; background: #eee; padding: 2px 5px; border-radius: 3px; color: #666; }
+        .pts-bold { font-weight: bold; color: var(--pnhl-orange); text-align: center; }
         
-        /* TABLEAU */
-        .table-wrapper { overflow-x: auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { background: #f8f8f8; text-align: left; padding: 12px; border-bottom: 2px solid #eee; font-size: 0.85rem; color: #666; }
-        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.95rem; }
-        tr:hover { background: #fffcfb; }
-
-        .team-info { display: flex; align-items: center; gap: 10px; font-weight: bold; }
-        .team-logo { width: 25px; height: 25px; object-fit: contain; }
-        .pos-badge { font-size: 0.75rem; padding: 2px 6px; background: #eee; border-radius: 4px; color: #555; }
-        .pts-col { font-weight: bold; color: #fc723f; text-align: center; }
-        
-        .loading { text-align: center; padding: 40px; font-style: italic; color: #fc723f; }
-        .error-msg { background: #fff1f0; color: #d85140; padding: 15px; border-radius: 4px; border: 1px solid #ffa39e; margin-bottom: 20px; }
+        .loader { padding: 50px; text-align: center; color: var(--pnhl-orange); font-weight: bold; }
+        .error-box { padding: 20px; background: #fff1f0; border: 1px solid #ffa39e; color: #cf1322; border-radius: 8px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1 style="margin:0; font-size: 1.5rem;">PNHL <span style="font-weight:normal; color:#999;">| Admin</span></h1>
-    <div id="status" style="font-size: 0.8rem; color: green;">● API NHL Connectée</div>
+    <h1>PNHL <span>| Admin</span></h1>
+    <div id="apiIndicator" class="api-status">Initialisation...</div>
 </div>
 
-<div class="navbar-container">
-    <div class="navbar">
-        <div class="nav-item active" onclick="loadCategory('skaters', this)">Attaquants / Défenseurs</div>
-        <div class="nav-item" onclick="loadCategory('goalies', this)">Gardiens</div>
-    </div>
+<div class="nav-container">
+    <button class="nav-item active" onclick="changeTab('skaters', this)">Attaquants / Défenseurs</button>
+    <button class="nav-item" onclick="changeTab('goalies', this)">Gardiens</button>
 </div>
 
-<div class="content">
-    <input type="text" id="playerSearch" class="search-box" placeholder="Rechercher un joueur (ex: Suzuki, McDavid...)" onkeyup="filterData()">
-    <div id="error-container"></div>
-    <div id="table-output" class="table-wrapper">
-        <div class="loading">Initialisation des données...</div>
+<div class="container">
+    <input type="text" id="playerSearch" class="search-box" placeholder="Rechercher un joueur (ex: Suzuki, McDavid...)" onkeyup="handleSearch()">
+    
+    <div id="alertArea"></div>
+
+    <div class="card">
+        <div id="tableContent">
+            <div class="loader">Chargement des données NHL...</div>
+        </div>
     </div>
 </div>
 
 <script>
-    let currentData = [];
-    let currentMode = 'skaters';
+    let allPlayers = [];
+    let currentTab = 'skaters';
 
-    // Utilisation d'un proxy spécifique pour GitHub Pages
-    const PROXY = "https://corsproxy.io/?";
-    const API_SKATERS = "https://api-web.nhle.com/v1/skater-stats-now";
-    const API_GOALIES = "https://api-web.nhle.com/v1/goalie-stats-now";
+    // Utilisation d'un proxy plus robuste ou accès direct si possible
+    const PROXY = "https://api.allorigins.win/raw?url=";
+    const SKATER_URL = "https://api-web.nhle.com/v1/skater-stats-now";
+    const GOALIE_URL = "https://api-web.nhle.com/v1/goalie-stats-now";
 
-    async function fetchData(url) {
+    async function fetchData() {
+        const indicator = document.getElementById('apiIndicator');
+        const alertArea = document.getElementById('alertArea');
+        const url = currentTab === 'skaters' ? SKATER_URL : GOALIE_URL;
+        
+        indicator.textContent = "Tentative de connexion...";
+        alertArea.innerHTML = "";
+
         try {
+            // Tentative avec AllOrigins (plus stable pour GitHub)
             const response = await fetch(PROXY + encodeURIComponent(url));
-            if (!response.ok) throw new Error("Réponse réseau incorrecte");
-            const json = await response.json();
-            return json.data;
-        } catch (error) {
-            console.error("Erreur API:", error);
-            document.getElementById('error-container').innerHTML = `
-                <div class="error-msg">
-                    <strong>Erreur de chargement :</strong> Impossible de joindre l'API NHL. 
-                    Assurez-vous d'être en HTTPS ou essayez de rafraîchir la page.
+            if (!response.ok) throw new Error("Erreur serveur");
+            
+            const result = await response.json();
+            allPlayers = result.data;
+            
+            indicator.textContent = "● API NHL Connectée";
+            indicator.style.color = "#52c41a";
+            indicator.style.borderColor = "#b7eb8f";
+            indicator.style.background = "#f6ffed";
+
+            renderTable(allPlayers.slice(0, 100));
+        } catch (err) {
+            indicator.textContent = "○ Erreur de connexion";
+            indicator.style.color = "#ff4d4f";
+            alertArea.innerHTML = `
+                <div class="error-box">
+                    <strong>Impossible de récupérer les données.</strong><br>
+                    L'API NHL bloque les requêtes provenant de GitHub. 
+                    <button onclick="location.reload()" style="margin-top:10px; cursor:pointer;">Réessayer</button>
                 </div>`;
-            return [];
+            document.getElementById('tableContent').innerHTML = "";
         }
     }
 
-    async function loadCategory(type, element) {
-        // UI Update
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        element.classList.add('active');
-        document.getElementById('playerSearch').value = "";
-        
-        currentMode = type;
-        const output = document.getElementById('table-output');
-        output.innerHTML = `<div class="loading">Récupération des données NHL en cours...</div>`;
-
-        const url = (type === 'skaters') ? API_SKATERS : API_GOALIES;
-        currentData = await fetchData(url);
-        
-        // Tri par défaut (Points pour joueurs, Victoires pour gardiens)
-        if(type === 'skaters') currentData.sort((a,b) => b.points - a.points);
-        else currentData.sort((a,b) => b.wins - a.wins);
-
-        renderTable(currentData.slice(0, 100)); // On affiche le top 100
-    }
-
     function renderTable(data) {
-        const output = document.getElementById('table-output');
+        const container = document.getElementById('tableContent');
+        if (!data || data.length === 0) {
+            container.innerHTML = "<div style='padding:20px;'>Aucun résultat trouvé.</div>";
+            return;
+        }
+
+        let html = `<table><thead><tr><th>Joueur</th><th>Équipe</th>`;
         
-        let html = `<table><tr>
-            <th>Joueur</th>
-            <th>Équipe</th>`;
-        
-        if (currentMode === 'skaters') {
-            html += `<th>PJ</th><th>B</th><th>A</th><th style="text-align:center">PTS</th><th>+/-</th></tr>`;
+        if (currentTab === 'skaters') {
+            html += `<th>PJ</th><th>B</th><th>A</th><th style="text-align:center">PTS</th><th>+/-</th></tr></thead><tbody>`;
             data.forEach(p => {
                 html += `<tr>
-                    <td><div class="team-info">
-                        <img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg" onerror="this.src='https://placehold.co/20?text=?'">
-                        ${p.firstName} ${p.lastName} <span class="pos-badge">${p.positionCode}</span>
-                    </div></td>
+                    <td>
+                        <div class="player-cell">
+                            <img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg" onerror="this.src='https://placehold.co/24?text=?'">
+                            <div><strong>${p.firstName} ${p.lastName}</strong> <span class="pos-tag">${p.positionCode}</span></div>
+                        </div>
+                    </td>
                     <td>${p.teamAbbrev}</td>
                     <td>${p.gamesPlayed}</td><td>${p.goals}</td><td>${p.assists}</td>
-                    <td class="pts-col">${p.points}</td>
-                    <td style="color:${p.plusMinus < 0 ? '#d85140' : '#52c41a'}">${p.plusMinus > 0 ? '+' : ''}${p.plusMinus}</td>
+                    <td class="pts-bold">${p.points}</td>
+                    <td style="color:${p.plusMinus < 0 ? '#ff4d4f' : '#52c41a'}">${p.plusMinus > 0 ? '+' : ''}${p.plusMinus}</td>
                 </tr>`;
             });
         } else {
-            html += `<th>PJ</th><th>V</th><th>D</th><th>MOY</th><th>%ARR</th><th>SO</th></tr>`;
+            html += `<th>PJ</th><th>V</th><th>D</th><th>MOY</th><th>%ARR</th></tr></thead><tbody>`;
             data.forEach(p => {
                 html += `<tr>
-                    <td><div class="team-info">
-                        <img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg">
-                        ${p.firstName} ${p.lastName}
-                    </div></td>
+                    <td>
+                        <div class="player-cell">
+                            <img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg">
+                            <strong>${p.firstName} ${p.lastName}</strong>
+                        </div>
+                    </td>
                     <td>${p.teamAbbrev}</td>
                     <td>${p.gamesPlayed}</td><td>${p.wins}</td><td>${p.losses}</td>
                     <td style="font-weight:bold">${p.goalsAgainstAvg.toFixed(2)}</td>
                     <td>${(p.savePctg * 100).toFixed(1)}%</td>
-                    <td>${p.shutouts}</td>
                 </tr>`;
             });
         }
         
-        html += `</table>`;
-        output.innerHTML = html;
+        html += `</tbody></table>`;
+        container.innerHTML = html;
     }
 
-    function filterData() {
+    function handleSearch() {
         const query = document.getElementById('playerSearch').value.toLowerCase();
-        const filtered = currentData.filter(p => 
-            (p.firstName + " " + p.lastName).toLowerCase().includes(query) || 
+        const filtered = allPlayers.filter(p => 
+            `${p.firstName} ${p.lastName}`.toLowerCase().includes(query) || 
             p.teamAbbrev.toLowerCase().includes(query)
         );
         renderTable(filtered.slice(0, 100));
     }
 
-    // Chargement initial
-    window.onload = () => {
-        loadCategory('skaters', document.querySelector('.nav-item'));
-    };
+    function changeTab(tab, el) {
+        if (currentTab === tab) return;
+        currentTab = tab;
+        
+        document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('playerSearch').value = "";
+        
+        document.getElementById('tableContent').innerHTML = "<div class='loader'>Chargement...</div>";
+        fetchData();
+    }
+
+    // Chargement auto au démarrage
+    window.onload = fetchData;
 </script>
 
 </body>
