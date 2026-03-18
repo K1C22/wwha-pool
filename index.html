@@ -2,95 +2,132 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>PNHL | Administration</title>
+    <title>PNHL | Admin Panel</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Aptos:wght@400;700&display=swap');
-        :root { --pnhl: #fc723f; }
+        :root { --pnhl: #fc723f; --bg: #f5f7f9; }
         * { font-family: 'Aptos', sans-serif; box-sizing: border-box; }
-        body { margin: 0; background: #f4f4f4; padding: 20px; }
-        .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 1100px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--pnhl); padding-bottom: 15px; margin-bottom: 20px; }
-        .status { font-size: 0.8rem; padding: 5px 12px; border-radius: 4px; font-weight: bold; }
-        .online { background: #e6ffed; color: #28a745; }
-        .offline { background: #fff1f0; color: #cf1322; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; background: #fafafa; border-bottom: 1px solid #ddd; font-size: 0.8rem; color: #666; }
-        td { padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-        .team-logo { width: 22px; height: 22px; vertical-align: middle; margin-right: 10px; }
-        .loading { text-align: center; padding: 50px; color: var(--pnhl); font-weight: bold; }
+        body { margin: 0; background: var(--bg); color: #333; }
+        
+        /* Header & Nav */
+        .header { background: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--pnhl); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .nav { display: flex; justify-content: center; gap: 10px; padding: 20px; }
+        .btn { padding: 12px 35px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; background: #e0e0e0; transition: 0.2s; }
+        .btn.active { background: var(--pnhl); color: white; }
+        
+        /* Main Content */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .search-input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; font-size: 1rem; }
+        .card { background: white; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow-x: auto; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: #fafafa; padding: 15px; text-align: left; font-size: 0.75rem; color: #888; text-transform: uppercase; border-bottom: 1px solid #eee; }
+        td { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; }
+        tr:hover { background: #fffaf9; }
+        
+        .team-logo { width: 24px; height: 24px; vertical-align: middle; margin-right: 12px; }
+        .status-badge { font-size: 0.75rem; padding: 5px 12px; border-radius: 20px; font-weight: bold; }
+        .online { background: #e6ffed; color: #28a745; border: 1px solid #b7eb8f; }
+        .loader { padding: 60px; text-align: center; font-weight: bold; color: var(--pnhl); }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <div class="header">
-        <h1 style="margin:0;">PNHL <span style="font-weight:normal; color:#999;">| Admin</span></h1>
-        <div id="apiStatus" class="status offline">Connexion...</div>
-    </div>
+<div class="header">
+    <h1 style="margin:0; font-size:1.5rem;">PNHL <span style="font-weight:normal; color:#999;">| Admin</span></h1>
+    <div id="apiStatus" class="status-badge" style="background:#fff1f0; color:#cf1322;">Hors ligne</div>
+</div>
 
-    <input type="text" id="search" placeholder="Filtrer par nom ou équipe..." style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px; margin-bottom:20px;" onkeyup="filter()">
+<div class="nav">
+    <button class="btn active" onclick="switchTab('skaters', this)">Attaquants / Défenseurs</button>
+    <button class="btn" onclick="switchTab('goalies', this)">Gardiens</button>
+</div>
 
-    <div id="tableContainer">
-        <div class="loading">Chargement des stats NHL via relais sécurisé...</div>
+<div class="container">
+    <input type="text" id="searchBar" class="search-input" placeholder="Rechercher un joueur ou une équipe..." onkeyup="filterData()">
+    
+    <div class="card" id="tableWrapper">
+        <div class="loader">Synchronisation avec Vercel...</div>
     </div>
 </div>
 
 <script>
     let allPlayers = [];
+    let currentMode = 'skaters';
+    
+    // Ton URL Vercel mise à jour
+    const API_BASE = "https://nodejs-serverless-function-express-three-psi-89.vercel.app/api/stats";
 
-    async function loadNHL() {
-        const container = document.getElementById('tableContainer');
+    async function fetchStats() {
+        const wrapper = document.getElementById('tableWrapper');
         const status = document.getElementById('apiStatus');
-        const target = "https://api-web.nhle.com/v1/skater-stats-now";
         
-        // Utilisation du mode 'contents' de AllOrigins qui est le plus robuste pour GitHub
         try {
-            const resp = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(target)}`);
-            const data = await resp.json();
-            
-            // data.contents contient le JSON sous forme de texte brut
-            const cleanData = JSON.parse(data.contents);
-            allPlayers = cleanData.data;
+            const response = await fetch(`${API_BASE}?type=${currentMode}`);
+            const json = await response.json();
+            allPlayers = json.data;
 
-            // Tri par points
-            allPlayers.sort((a,b) => b.points - a.points);
-            
-            status.textContent = "● NHL CONNECTÉE";
-            status.className = "status online";
+            // Tri par défaut
+            if(currentMode === 'skaters') allPlayers.sort((a,b) => b.points - a.points);
+            else allPlayers.sort((a,b) => b.wins - a.wins);
+
+            status.textContent = "● Vercel Connecté";
+            status.className = "status-badge online";
             render(allPlayers.slice(0, 100));
 
-        } catch (err) {
-            status.textContent = "○ ÉCHEC CONNEXION";
-            status.className = "status offline";
-            container.innerHTML = `<div style="text-align:center; padding:20px; color:red;">
-                <b>Erreur Critique :</b> GitHub bloque l'accès.<br>
-                <button onclick="location.reload()" style="margin-top:10px; cursor:pointer; padding:8px 15px;">Réessayer</button>
+        } catch (error) {
+            wrapper.innerHTML = `<div style="padding:40px; text-align:center;">
+                <b style="color:red;">Erreur de connexion au serveur Vercel.</b><br>
+                Vérifiez que l'API est bien déployée.<br>
+                <button onclick="fetchStats()" style="margin-top:15px; cursor:pointer;">Réessayer</button>
             </div>`;
         }
     }
 
-    function render(list) {
-        let html = `<table><tr><th>Joueur</th><th>Équipe</th><th>PJ</th><th>B</th><th>A</th><th style="text-align:center">PTS</th></tr>`;
-        list.forEach(p => {
-            html += `<tr>
-                <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg" onerror="this.style.opacity='0'"><b>${p.firstName} ${p.lastName}</b></td>
-                <td>${p.teamAbbrev}</td>
-                <td>${p.gamesPlayed}</td>
-                <td>${p.goals}</td>
-                <td>${p.assists}</td>
-                <td style="text-align:center; font-weight:bold; color:var(--pnhl)">${p.points}</td>
-            </tr>`;
-        });
-        document.getElementById('tableContainer').innerHTML = html + "</table>";
+    function render(data) {
+        let html = `<table><thead><tr><th>Joueur</th><th>Équipe</th>`;
+        
+        if (currentMode === 'skaters') {
+            html += `<th>PJ</th><th>B</th><th>A</th><th style="text-align:center">PTS</th><th>+/-</th></tr></thead><tbody>`;
+            data.forEach(p => {
+                html += `<tr>
+                    <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg"><b>${p.firstName} ${p.lastName}</b></td>
+                    <td>${p.teamAbbrev}</td><td>${p.gamesPlayed}</td><td>${p.goals}</td><td>${p.assists}</td>
+                    <td style="text-align:center; font-weight:bold; color:var(--pnhl)">${p.points}</td>
+                    <td style="color:${p.plusMinus < 0 ? '#cf1322' : '#28a745'}">${p.plusMinus > 0 ? '+' : ''}${p.plusMinus}</td>
+                </tr>`;
+            });
+        } else {
+            html += `<th>PJ</th><th>V</th><th>D</th><th>MOY</th><th>%ARR</th></tr></thead><tbody>`;
+            data.forEach(p => {
+                html += `<tr>
+                    <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg"><b>${p.firstName} ${p.lastName}</b></td>
+                    <td>${p.teamAbbrev}</td><td>${p.gamesPlayed}</td><td>${p.wins}</td><td>${p.losses}</td>
+                    <td>${p.goalsAgainstAvg.toFixed(2)}</td><td>${(p.savePctg * 100).toFixed(1)}%</td>
+                </tr>`;
+            });
+        }
+        document.getElementById('tableWrapper').innerHTML = html + "</tbody></table>";
     }
 
-    function filter() {
-        const q = document.getElementById('search').value.toLowerCase();
-        const f = allPlayers.filter(p => `${p.firstName} ${p.lastName} ${p.teamAbbrev}`.toLowerCase().includes(q));
-        render(f.slice(0, 100));
+    function filterData() {
+        const val = document.getElementById('searchBar').value.toLowerCase();
+        const filtered = allPlayers.filter(p => 
+            `${p.firstName} ${p.lastName} ${p.teamAbbrev}`.toLowerCase().includes(val)
+        );
+        render(filtered.slice(0, 100));
     }
 
-    window.onload = loadNHL;
+    function switchTab(mode, btn) {
+        if (currentMode === mode) return;
+        currentMode = mode;
+        document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tableWrapper').innerHTML = '<div class="loader">Chargement...</div>';
+        fetchStats();
+    }
+
+    window.onload = fetchStats;
 </script>
 
 </body>
