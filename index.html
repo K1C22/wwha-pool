@@ -6,205 +6,149 @@
     <title>PNHL | Admin</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Aptos:wght@400;700&display=swap');
-        
-        :root { --pnhl-orange: #fc723f; --pnhl-gray: #f5f5f5; }
-
+        :root { --pnhl-orange: #fc723f; --pnhl-bg: #fdfdfd; }
         * { font-family: 'Aptos', sans-serif; box-sizing: border-box; }
-        body { margin: 0; background: #fff; color: #333; }
+        body { margin: 0; background: var(--pnhl-bg); color: #333; }
 
-        /* HEADER */
-        .header { 
-            padding: 15px 25px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 2px solid var(--pnhl-orange);
-        }
-        .header h1 { margin: 0; font-size: 1.4rem; font-weight: bold; }
-        .header span { color: #999; font-weight: normal; }
-        .api-status { font-size: 0.75rem; background: #e6f7ff; color: #1890ff; padding: 4px 8px; border-radius: 4px; border: 1px solid #91d5ff; }
+        .header { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--pnhl-orange); background: white; }
+        .header h1 { margin: 0; font-size: 1.4rem; }
+        .api-status { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
 
-        /* NAV */
         .nav-container { display: flex; justify-content: center; padding: 20px; gap: 10px; }
-        .nav-item { 
-            padding: 12px 40px; 
-            background: var(--pnhl-gray); 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: 0.2s;
-            border: none;
-            flex: 0 1 300px;
-            text-align: center;
-        }
+        .nav-item { padding: 12px 30px; background: #eee; border-radius: 6px; cursor: pointer; font-weight: bold; border: none; flex: 0 1 250px; }
         .nav-item.active { background: var(--pnhl-orange); color: white; }
 
-        /* CONTENT */
         .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-        .search-box { 
-            width: 100%; 
-            padding: 15px; 
-            border: 1px solid #ddd; 
-            border-radius: 8px; 
-            margin-bottom: 20px; 
-            font-size: 1rem;
-            outline-color: var(--pnhl-orange);
-        }
+        .search-box { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; font-size: 1rem; }
 
-        /* TABLE */
-        .card { background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #fafafa; padding: 15px; text-align: left; font-size: 0.8rem; color: #888; text-transform: uppercase; border-bottom: 1px solid #eee; }
-        td { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; }
-        tr:hover { background: #fffaf9; }
-
-        .player-cell { display: flex; align-items: center; gap: 12px; }
-        .team-logo { width: 24px; height: 24px; object-fit: contain; }
-        .pos-tag { font-size: 0.7rem; background: #eee; padding: 2px 5px; border-radius: 3px; color: #666; }
-        .pts-bold { font-weight: bold; color: var(--pnhl-orange); text-align: center; }
+        th { background: #fafafa; padding: 12px; text-align: left; font-size: 0.8rem; color: #777; border-bottom: 1px solid #eee; }
+        td { padding: 10px 12px; border-bottom: 1px solid #f5f5f5; font-size: 0.9rem; }
         
-        .loader { padding: 50px; text-align: center; color: var(--pnhl-orange); font-weight: bold; }
-        .error-box { padding: 20px; background: #fff1f0; border: 1px solid #ffa39e; color: #cf1322; border-radius: 8px; margin-bottom: 20px; }
+        .team-logo { width: 22px; height: 22px; vertical-align: middle; margin-right: 8px; }
+        .pos-tag { font-size: 0.7rem; background: #f0f0f0; padding: 2px 5px; border-radius: 3px; color: #777; margin-left: 5px; }
+        .loading { padding: 40px; text-align: center; color: var(--pnhl-orange); font-weight: bold; }
+        .error-msg { padding: 20px; background: #fff1f0; border: 1px solid #ffa39e; color: #cf1322; border-radius: 8px; text-align: center; }
+        button.retry-btn { margin-top: 10px; padding: 8px 20px; background: #cf1322; color: white; border: none; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>PNHL <span>| Admin</span></h1>
-    <div id="apiIndicator" class="api-status">Initialisation...</div>
+    <h1>PNHL <span style="color:#999; font-weight:normal;">| Admin</span></h1>
+    <div id="statusDot" class="api-status" style="background:#fff1f0; color:#cf1322;">Hors ligne</div>
 </div>
 
 <div class="nav-container">
-    <button class="nav-item active" onclick="changeTab('skaters', this)">Attaquants / Défenseurs</button>
-    <button class="nav-item" onclick="changeTab('goalies', this)">Gardiens</button>
+    <button class="nav-item active" onclick="switchTab('skaters', this)">Attaquants / Défenseurs</button>
+    <button class="nav-item" onclick="switchTab('goalies', this)">Gardiens</button>
 </div>
 
 <div class="container">
-    <input type="text" id="playerSearch" class="search-box" placeholder="Rechercher un joueur (ex: Suzuki, McDavid...)" onkeyup="handleSearch()">
-    
-    <div id="alertArea"></div>
-
-    <div class="card">
-        <div id="tableContent">
-            <div class="loader">Chargement des données NHL...</div>
-        </div>
+    <input type="text" id="pSearch" class="search-box" placeholder="Chercher par nom ou équipe..." onkeyup="doSearch()">
+    <div id="mainContent">
+        <div class="card" id="tableBox"><div class="loading">Tentative de connexion...</div></div>
     </div>
 </div>
 
 <script>
-    let allPlayers = [];
-    let currentTab = 'skaters';
+    let players = [];
+    let currentMode = 'skaters';
 
-    // Utilisation d'un proxy plus robuste ou accès direct si possible
-    const PROXY = "https://api.allorigins.win/raw?url=";
-    const SKATER_URL = "https://api-web.nhle.com/v1/skater-stats-now";
-    const GOALIE_URL = "https://api-web.nhle.com/v1/goalie-stats-now";
+    // Les proxys les plus fiables pour GitHub
+    const proxys = [
+        "https://api.allorigins.win/raw?url=",
+        "https://cors-anywhere.herokuapp.com/", // Nécessite parfois une activation manuelle
+        "https://thingproxy.freeboard.io/fetch/"
+    ];
 
-    async function fetchData() {
-        const indicator = document.getElementById('apiIndicator');
-        const alertArea = document.getElementById('alertArea');
-        const url = currentTab === 'skaters' ? SKATER_URL : GOALIE_URL;
+    async function loadData() {
+        const tableBox = document.getElementById('tableBox');
+        const status = document.getElementById('statusDot');
+        const url = (currentMode === 'skaters') 
+            ? "https://api-web.nhle.com/v1/skater-stats-now" 
+            : "https://api-web.nhle.com/v1/goalie-stats-now";
+
+        tableBox.innerHTML = `<div class="loading">Synchronisation avec la NHL en cours...</div>`;
+
+        let success = false;
         
-        indicator.textContent = "Tentative de connexion...";
-        alertArea.innerHTML = "";
+        // On essaie chaque proxy jusqu'à ce qu'un réponde
+        for (let p of proxys) {
+            try {
+                const response = await fetch(p + encodeURIComponent(url));
+                if (!response.ok) continue;
+                const json = await response.json();
+                players = json.data;
+                success = true;
+                break; 
+            } catch (e) {
+                console.warn("Proxy échoué, essai du suivant...");
+            }
+        }
 
-        try {
-            // Tentative avec AllOrigins (plus stable pour GitHub)
-            const response = await fetch(PROXY + encodeURIComponent(url));
-            if (!response.ok) throw new Error("Erreur serveur");
-            
-            const result = await response.json();
-            allPlayers = result.data;
-            
-            indicator.textContent = "● API NHL Connectée";
-            indicator.style.color = "#52c41a";
-            indicator.style.borderColor = "#b7eb8f";
-            indicator.style.background = "#f6ffed";
-
-            renderTable(allPlayers.slice(0, 100));
-        } catch (err) {
-            indicator.textContent = "○ Erreur de connexion";
-            indicator.style.color = "#ff4d4f";
-            alertArea.innerHTML = `
-                <div class="error-box">
-                    <strong>Impossible de récupérer les données.</strong><br>
-                    L'API NHL bloque les requêtes provenant de GitHub. 
-                    <button onclick="location.reload()" style="margin-top:10px; cursor:pointer;">Réessayer</button>
+        if (success) {
+            status.textContent = "API Connectée";
+            status.style.background = "#f6ffed";
+            status.style.color = "#52c41a";
+            // Tri par points ou victoires
+            players.sort((a,b) => (currentMode === 'skaters') ? b.points - a.points : b.wins - a.wins);
+            drawTable(players.slice(0, 100));
+        } else {
+            status.textContent = "Erreur Proxy";
+            tableBox.innerHTML = `
+                <div class="error-msg">
+                    <strong>Blocage de sécurité détecté.</strong><br>
+                    GitHub ne peut pas accéder aux données NHL directement.<br>
+                    <button class="retry-btn" onclick="loadData()">Réessayer la connexion</button>
                 </div>`;
-            document.getElementById('tableContent').innerHTML = "";
         }
     }
 
-    function renderTable(data) {
-        const container = document.getElementById('tableContent');
-        if (!data || data.length === 0) {
-            container.innerHTML = "<div style='padding:20px;'>Aucun résultat trouvé.</div>";
-            return;
-        }
-
-        let html = `<table><thead><tr><th>Joueur</th><th>Équipe</th>`;
-        
-        if (currentTab === 'skaters') {
-            html += `<th>PJ</th><th>B</th><th>A</th><th style="text-align:center">PTS</th><th>+/-</th></tr></thead><tbody>`;
+    function drawTable(data) {
+        let html = `<table><tr><th>Joueur</th><th>Équipe</th>`;
+        if (currentMode === 'skaters') {
+            html += `<th>PJ</th><th>B</th><th>A</th><th style="text-align:center">PTS</th><th>+/-</th></tr>`;
             data.forEach(p => {
                 html += `<tr>
-                    <td>
-                        <div class="player-cell">
-                            <img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg" onerror="this.src='https://placehold.co/24?text=?'">
-                            <div><strong>${p.firstName} ${p.lastName}</strong> <span class="pos-tag">${p.positionCode}</span></div>
-                        </div>
-                    </td>
-                    <td>${p.teamAbbrev}</td>
-                    <td>${p.gamesPlayed}</td><td>${p.goals}</td><td>${p.assists}</td>
-                    <td class="pts-bold">${p.points}</td>
-                    <td style="color:${p.plusMinus < 0 ? '#ff4d4f' : '#52c41a'}">${p.plusMinus > 0 ? '+' : ''}${p.plusMinus}</td>
+                    <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg" onerror="this.style.opacity='0'">
+                    <b>${p.firstName} ${p.lastName}</b><span class="pos-tag">${p.positionCode}</span></td>
+                    <td>${p.teamAbbrev}</td><td>${p.gamesPlayed}</td><td>${p.goals}</td><td>${p.assists}</td>
+                    <td style="font-weight:bold; color:var(--pnhl-orange); text-align:center;">${p.points}</td>
+                    <td style="color:${p.plusMinus < 0 ? 'red' : 'green'}">${p.plusMinus > 0 ? '+' : ''}${p.plusMinus}</td>
                 </tr>`;
             });
         } else {
-            html += `<th>PJ</th><th>V</th><th>D</th><th>MOY</th><th>%ARR</th></tr></thead><tbody>`;
+            html += `<th>PJ</th><th>V</th><th>D</th><th>MOY</th><th>%ARR</th></tr>`;
             data.forEach(p => {
                 html += `<tr>
-                    <td>
-                        <div class="player-cell">
-                            <img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg">
-                            <strong>${p.firstName} ${p.lastName}</strong>
-                        </div>
-                    </td>
-                    <td>${p.teamAbbrev}</td>
-                    <td>${p.gamesPlayed}</td><td>${p.wins}</td><td>${p.losses}</td>
-                    <td style="font-weight:bold">${p.goalsAgainstAvg.toFixed(2)}</td>
-                    <td>${(p.savePctg * 100).toFixed(1)}%</td>
+                    <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg">
+                    <b>${p.firstName} ${p.lastName}</b></td>
+                    <td>${p.teamAbbrev}</td><td>${p.gamesPlayed}</td><td>${p.wins}</td><td>${p.losses}</td>
+                    <td>${p.goalsAgainstAvg.toFixed(2)}</td><td>${(p.savePctg * 100).toFixed(1)}%</td>
                 </tr>`;
             });
         }
-        
-        html += `</tbody></table>`;
-        container.innerHTML = html;
+        document.getElementById('tableBox').innerHTML = html + `</table>`;
     }
 
-    function handleSearch() {
-        const query = document.getElementById('playerSearch').value.toLowerCase();
-        const filtered = allPlayers.filter(p => 
-            `${p.firstName} ${p.lastName}`.toLowerCase().includes(query) || 
-            p.teamAbbrev.toLowerCase().includes(query)
-        );
-        renderTable(filtered.slice(0, 100));
+    function doSearch() {
+        const q = document.getElementById('pSearch').value.toLowerCase();
+        const filtered = players.filter(p => `${p.firstName} ${p.lastName} ${p.teamAbbrev}`.toLowerCase().includes(q));
+        drawTable(filtered.slice(0, 100));
     }
 
-    function changeTab(tab, el) {
-        if (currentTab === tab) return;
-        currentTab = tab;
-        
-        document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+    function switchTab(mode, el) {
+        if (currentMode === mode) return;
+        currentMode = mode;
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
-        document.getElementById('playerSearch').value = "";
-        
-        document.getElementById('tableContent').innerHTML = "<div class='loader'>Chargement...</div>";
-        fetchData();
+        document.getElementById('pSearch').value = "";
+        loadData();
     }
 
-    // Chargement auto au démarrage
-    window.onload = fetchData;
+    window.onload = loadData;
 </script>
 
 </body>
