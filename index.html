@@ -1,107 +1,205 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>PNHL - Joueurs NHL</title>
-<style>
-body{font-family:sans-serif;margin:20px;}
-input.search-bar{width:100%;padding:8px;margin-bottom:10px;}
-table{width:100%;border-collapse:collapse;}
-th,td{border:1px solid #ccc;padding:6px;text-align:left;}
-.stats{text-align:center;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNHL | Administration du Pool</title>
+    <style>
+        /* Design inspiré de ton projet Replit (Aptos & Sports style) */
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;700&display=swap');
+
+        :root {
+            --pnhl-orange: #fc723f;
+            --pnhl-dark: #1a1a1a;
+            --bg-gray: #f4f4f4;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-gray);
+            margin: 0;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--pnhl-dark);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--pnhl-orange);
+            margin-bottom: 30px;
+        }
+
+        h1 { font-family: 'Bebas Neue', cursive; font-size: 2.5rem; margin: 0; letter-spacing: 2px; }
+
+        .nav-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: white;
+            color: var(--pnhl-dark);
+            transition: 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn.active {
+            background: var(--pnhl-orange);
+            color: white;
+        }
+
+        .stats-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            min-height: 400px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            background: #fafafa;
+            border-bottom: 2px solid #eee;
+            color: #666;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f1f1f1;
+            font-size: 0.95rem;
+        }
+
+        tr:hover { background: #fff8f5; }
+
+        .team-logo {
+            width: 25px;
+            height: 25px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .points-cell {
+            font-weight: bold;
+            color: var(--pnhl-orange);
+            text-align: center;
+        }
+
+        .loader {
+            text-align: center;
+            padding: 50px;
+            font-style: italic;
+            color: #999;
+        }
+
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #4caf50;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 
-<h2>PNHL - Joueurs NHL</h2>
-<input class="search-bar" placeholder="Rechercher joueur..." onkeyup="search(this.value)">
-<div id="content">Chargement...</div>
+<header>
+    <h1>PNHL <span style="color: var(--pnhl-orange)">Pool Admin</span></h1>
+    <div class="status-badge">API NHL Connectée</div>
+</header>
+
+<div class="nav-container">
+    <button id="btn-skaters" class="tab-btn active" onclick="loadData('skaters')">Attaquants / Défenseurs</button>
+    <button id="btn-goalies" class="tab-btn" onclick="loadData('goalies')">Gardiens</button>
+</div>
+
+<div class="stats-container" id="main-content">
+    <div class="loader">Sélectionnez une catégorie pour charger les statistiques en direct...</div>
+</div>
 
 <script>
-let allPlayers = [];
+    // --- CONFIGURATION ---
+    // Remplace par l'URL de ton projet Vercel (ex: https://pnhl-api.vercel.app)
+    const VERCEL_API_URL = "https://TON-PROJET-VERCEL.vercel.app/api/stats";
 
-async function loadPlayers() {
-    const content = document.getElementById("content");
-    content.innerHTML = "Chargement des joueurs depuis Marqueur.com...";
+    async function loadData(type) {
+        const content = document.getElementById('main-content');
+        
+        // Mise à jour visuelle des boutons
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn-${type}`).classList.add('active');
 
-    try {
-        // Proxy pour contourner CORS
-        const url = "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://www.marqueur.com/hockey/stats/nhl/stats.php");
-        const res = await fetch(url);
-        const text = await res.text();
+        content.innerHTML = '<div class="loader">Récupération des données NHL via Vercel...</div>';
 
-        // Parser HTML
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(text, "text/html");
+        try {
+            const response = await fetch(`${VERCEL_API_URL}?type=${type}`);
+            const players = await response.json();
 
-        // Tableau de joueurs
-        const tables = doc.querySelectorAll("table.statsTable"); // la classe du tableau peut changer
-        let players = [];
+            if (!players || players.error) throw new Error("Erreur API");
 
-        tables.forEach(table => {
-            const rows = table.querySelectorAll("tr");
-            rows.forEach((row, idx) => {
-                if(idx===0) return; // skip header
-                const cols = row.querySelectorAll("td");
-                if(cols.length<5) return; // skip malformed
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th>Rang</th>
+                        <th>Joueur</th>
+                        <th>Équipe</th>
+                        ${type === 'skaters' ? '<th>PJ</th><th>B</th><th>A</th><th style="text-align:center">PTS</th>' : '<th>PJ</th><th>V</th><th>D</th><th>%ARR</th><th style="text-align:center">MOY</th>'}
+                    </tr>
+                </thead>
+                <tbody>`;
 
-                // Extraction des valeurs
-                const lastName = cols[0].textContent.trim();
-                const firstName = cols[1].textContent.trim();
-                const position = cols[2].textContent.trim();
-                const games = cols[3].textContent.trim();
-                const points = cols[4].textContent.trim();
-
-                players.push({
-                    firstName,
-                    lastName,
-                    positionCode: position,
-                    gamesPlayed: games,
-                    points,
-                    teamAbbrev: "" // pas disponible dans ce tableau
-                });
+            players.slice(0, 50).forEach((p, index) => {
+                const teamLogo = `https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev || p.team}.svg`;
+                
+                html += `<tr>
+                    <td>${index + 1}</td>
+                    <td><b>${p.skaterFullName || p.goalieFullName || p.name}</b></td>
+                    <td><img src="${teamLogo}" class="team-logo" onerror="this.style.display='none'">${p.teamAbbrev || p.team}</td>
+                    <td>${p.gamesPlayed || p.pj}</td>`;
+                
+                if (type === 'skaters') {
+                    html += `<td>${p.goals || p.b}</td><td>${p.assists || p.a}</td><td class="points-cell">${p.points || p.pts}</td>`;
+                } else {
+                    html += `<td>${p.wins || p.v}</td><td>${p.losses || p.d}</td><td>${p.savePctg || p.pct}</td><td class="points-cell">${p.goalsAgainstAvg || p.moy}</td>`;
+                }
+                html += `</tr>`;
             });
-        });
 
-        // tri par points décroissant
-        players.sort((a,b) => parseFloat(b.points)-parseFloat(a.points));
+            html += `</tbody></table>`;
+            content.innerHTML = html;
 
-        allPlayers = players;
-        render(allPlayers);
-
-    } catch(e) {
-        content.innerHTML = "Erreur chargement Marqueur.com";
-        console.error(e);
+        } catch (error) {
+            content.innerHTML = `
+                <div style="text-align:center; color:red; padding:50px;">
+                    <h3>Erreur de connexion</h3>
+                    <p>Impossible de joindre ton API Vercel. Vérifie que ton projet est bien déployé et que l'URL est correcte.</p>
+                    <small>${error.message}</small>
+                </div>`;
+        }
     }
-}
 
-function render(list) {
-    const content = document.getElementById("content");
-    let html = `<table>
-    <tr>
-        <th>Nom</th><th>Prénom</th><th>Pos</th><th class="stats">PJ</th><th class="stats">PTS</th>
-    </tr>`;
-    list.forEach(p=>{
-        html+=`<tr>
-            <td>${p.lastName}</td>
-            <td>${p.firstName}</td>
-            <td>${p.positionCode}</td>
-            <td class="stats">${p.gamesPlayed}</td>
-            <td class="stats">${p.points}</td>
-        </tr>`;
-    });
-    html += "</table>";
-    content.innerHTML = html;
-}
-
-function search(val){
-    val = val.toLowerCase();
-    const filtered = allPlayers.filter(p => (p.firstName+" "+p.lastName).toLowerCase().includes(val));
-    render(filtered);
-}
-
-// Charger automatiquement
-loadPlayers();
+    // Chargement automatique au démarrage
+    window.onload = () => loadData('skaters');
 </script>
 
 </body>
