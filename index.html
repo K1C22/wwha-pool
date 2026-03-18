@@ -24,7 +24,7 @@
 
 <div class="header">
     <h1 style="margin:0;">PNHL <span style="font-weight:normal; color:#999;">| Admin</span></h1>
-    <div id="apiStatus" class="status">Connexion Vercel...</div>
+    <div id="apiStatus" class="status">Connexion Directe...</div>
 </div>
 
 <div class="nav">
@@ -33,40 +33,57 @@
 </div>
 
 <div id="tableContainer" style="text-align:center; padding:50px; font-weight:bold; color:var(--pnhl);">
-    Chargement des données en direct...
+    Chargement des données NHL en direct...
 </div>
 
 <script>
-    // TON LIEN VERCEL CONFIGURÉ
-    const API_BASE = "// Utilise maintenant ton nouveau domaine personnalisé
-const API_BASE = "https://pnhl-api.vercel.app/api/stats";
+    // ON UTILISE UN PROXY PUBLIC POUR ÉVITER LES BLOCAGES
+    const PROXY = "https://api.allorigins.win/get?url=";
 
     async function load(type) {
         const container = document.getElementById('tableContainer');
         const status = document.getElementById('apiStatus');
         
+        container.innerHTML = "Chargement en cours...";
+        
         // Update boutons
         document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(`btn-${type}`).classList.add('active');
+        const activeBtn = document.getElementById(`btn-${type}`);
+        if(activeBtn) activeBtn.classList.add('active');
+
+        // URL directe de la NHL
+        const targetUrl = type === 'goalies' 
+            ? "https://api-web.nhle.com/v1/goalie-stats-now/en" 
+            : "https://api-web.nhle.com/v1/skater-stats-now/en";
 
         try {
-            const resp = await fetch(`${API_BASE}?type=${type}`);
-            const result = await resp.json();
+            // On passe par le proxy AllOrigins pour contourner le CORS et les blocages serveurs
+            const resp = await fetch(`${PROXY}${encodeURIComponent(targetUrl)}`);
+            if (!resp.ok) throw new Error("Erreur Réseau");
+            
+            const wrapper = await resp.json();
+            // AllOrigins place les données NHL dans la propriété "contents" sous forme de texte
+            const result = JSON.parse(wrapper.contents);
             const players = result.data;
 
-            // Tri
-            if(type === 'skaters') players.sort((a,b) => b.points - a.points);
-            else players.sort((a,b) => b.wins - a.wins);
+            // Tri des données
+            if(type === 'skaters') {
+                players.sort((a,b) => b.points - a.points);
+            } else {
+                players.sort((a,b) => b.wins - a.wins);
+            }
 
-            status.textContent = "● Vercel Connecté";
+            status.textContent = "● NHL Direct Connecté";
             status.className = "status online";
 
             let html = `<table><tr><th>Joueur</th><th>Équipe</th>`;
+            
             if(type === 'skaters') {
                 html += `<th>PJ</th><th>B</th><th>A</th><th style="text-align:center">PTS</th></tr>`;
                 players.slice(0, 100).forEach(p => {
+                    const fullName = `${p.firstName.default || p.firstName} ${p.lastName.default || p.lastName}`;
                     html += `<tr>
-                        <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg"><b>${p.firstName} ${p.lastName}</b></td>
+                        <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg"><b>${fullName}</b></td>
                         <td>${p.teamAbbrev}</td><td>${p.gamesPlayed}</td><td>${p.goals}</td><td>${p.assists}</td>
                         <td style="text-align:center; font-weight:bold; color:var(--pnhl)">${p.points}</td>
                     </tr>`;
@@ -74,19 +91,26 @@ const API_BASE = "https://pnhl-api.vercel.app/api/stats";
             } else {
                 html += `<th>PJ</th><th>V</th><th>D</th><th>MOY</th><th>%ARR</th></tr>`;
                 players.slice(0, 100).forEach(p => {
+                    const fullName = `${p.firstName.default || p.firstName} ${p.lastName.default || p.lastName}`;
                     html += `<tr>
-                        <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg"><b>${p.firstName} ${p.lastName}</b></td>
+                        <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg"><b>${fullName}</b></td>
                         <td>${p.teamAbbrev}</td><td>${p.gamesPlayed}</td><td>${p.wins}</td><td>${p.losses}</td>
-                        <td>${p.goalsAgainstAvg.toFixed(2)}</td><td>${(p.savePctg * 100).toFixed(1)}%</td>
+                        <td>${p.goalsAgainstAvg ? p.goalsAgainstAvg.toFixed(2) : '0.00'}</td>
+                        <td>${p.savePctg ? (p.savePctg * 100).toFixed(1) : '0.0'}%</td>
                     </tr>`;
                 });
             }
             container.innerHTML = html + "</table>";
 
         } catch (err) {
-            status.textContent = "○ Erreur Backend";
+            console.error(err);
+            status.textContent = "○ Échec Connexion";
             status.className = "status";
-            container.innerHTML = `<div style="color:red;">Impossible de charger les données. Vérifie que ton API Vercel est bien active.</div>`;
+            container.innerHTML = `<div style="color:red; padding:20px;">
+                Impossible de charger les données.<br>
+                <small>${err.message}</small><br><br>
+                <button onclick="load('${type}')" class="btn">Réessayer</button>
+            </div>`;
         }
     }
 
