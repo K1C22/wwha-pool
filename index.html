@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>PNHL | Admin Panel</title>
+    <title>PNHL | Marqueur Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Aptos:wght@400;700&display=swap');
         :root { --pnhl: #fc723f; }
@@ -12,85 +12,109 @@
         .nav { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
         .btn { padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; background: #eee; }
         .btn.active { background: var(--pnhl); color: white; }
-        .status { font-size: 0.8rem; padding: 5px 12px; border-radius: 20px; font-weight: bold; background: #e6ffed; color: #28a745; }
+        .status { font-size: 0.8rem; padding: 5px 12px; border-radius: 20px; font-weight: bold; background: #eef2ff; color: #4338ca; }
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        th { text-align: left; padding: 15px; background: #fafafa; border-bottom: 1px solid #eee; color: #666; font-size: 0.8rem; }
-        td { padding: 12px 15px; border-bottom: 1px solid #f9f9f9; }
-        .team-logo { width: 22px; vertical-align: middle; margin-right: 10px; }
+        th { text-align: left; padding: 12px; background: #fafafa; border-bottom: 1px solid #eee; color: #666; font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 10px 12px; border-bottom: 1px solid #f9f9f9; font-size: 0.9rem; }
+        .pos { color: #999; font-size: 0.8rem; margin-left: 5px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1 style="margin:0;">PNHL <span style="font-weight:normal; color:#999;">| Admin</span></h1>
-    <div id="apiStatus" class="status">Connexion Directe Navigateur</div>
+    <h1 style="margin:0;">PNHL <span style="font-weight:normal; color:#999;">| Marqueur.com</span></h1>
+    <div id="apiStatus" class="status">Source: Marqueur.com</div>
 </div>
 
 <div class="nav">
-    <button id="btn-skaters" class="btn active" onclick="load('skaters')">Attaquants / Défenseurs</button>
-    <button id="btn-goalies" class="btn" onclick="load('goalies')">Gardiens</button>
+    <button id="btn-skaters" class="btn active" onclick="loadStats('skaters')">Attaquants / Défenseurs</button>
+    <button id="btn-goalies" class="btn" onclick="loadStats('goalies')">Gardiens</button>
 </div>
 
-<div id="tableContainer" style="text-align:center; padding:50px;">
-    Chargement des données en cours...
+<div id="tableContainer">
+    <div style="text-align:center; padding:50px;">Lecture des données de Marqueur.com...</div>
 </div>
 
 <script>
-    // Proxy AllOrigins pour contourner le blocage Cross-Origin (CORS)
     const PROXY = "https://api.allorigins.win/get?url=";
+    
+    // URLs de Marqueur.com pour les stats
+    const MARQUEUR_URLS = {
+        skaters: "https://www.marqueur.com/hockey/stats/nhl/stats.php",
+        goalies: "https://www.marqueur.com/hockey/stats/nhl/stats.php?t=4" // t=4 pour les gardiens
+    };
 
-    async function load(type) {
+    async function loadStats(type) {
         const container = document.getElementById('tableContainer');
-        
         document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
         document.getElementById(`btn-${type}`).classList.add('active');
 
-        const nhlUrl = type === 'goalies' 
-            ? "https://api-web.nhle.com/v1/goalie-stats-now/en" 
-            : "https://api-web.nhle.com/v1/skater-stats-now/en";
-
         try {
-            const resp = await fetch(`${PROXY}${encodeURIComponent(nhlUrl)}`);
-            if (!resp.ok) throw new Error("Accès refusé");
+            const target = MARQUEUR_URLS[type];
+            const response = await fetch(`${PROXY}${encodeURIComponent(target)}`);
+            const data = await response.json();
             
-            const wrapper = await resp.json();
-            const data = JSON.parse(wrapper.contents);
-            const players = data.data;
-
-            // Tri
-            if(type === 'skaters') players.sort((a,b) => b.points - a.points);
-            else players.sort((a,b) => b.wins - a.wins);
-
-            let html = `<table><tr><th>Joueur</th><th>Équipe</th>`;
+            // Créer un document temporaire pour analyser le HTML reçu
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data.contents, 'text/html');
+            
+            // On cherche le tableau des stats (généralement le plus gros tableau de la page)
+            const rows = doc.querySelectorAll('table tr');
+            
+            let html = `<table><tr><th>Rang</th><th>Joueur</th><th>Équipe</th>`;
+            
             if(type === 'skaters') {
                 html += `<th>PJ</th><th>B</th><th>A</th><th style="text-align:center">PTS</th></tr>`;
-                players.slice(0, 100).forEach(p => {
-                    const name = p.skaterFullName || (p.firstName?.default + " " + p.lastName?.default);
-                    html += `<tr>
-                        <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg"><b>${name}</b></td>
-                        <td>${p.teamAbbrev}</td><td>${p.gamesPlayed}</td><td>${p.goals}</td><td>${p.assists}</td>
-                        <td style="text-align:center; font-weight:bold; color:var(--pnhl)">${p.points}</td>
-                    </tr>`;
-                });
             } else {
-                html += `<th>PJ</th><th>V</th><th>D</th><th>%ARR</th></tr>`;
-                players.slice(0, 100).forEach(p => {
-                    const name = p.goalieFullName || (p.firstName?.default + " " + p.lastName?.default);
-                    html += `<tr>
-                        <td><img class="team-logo" src="https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev}.svg"><b>${name}</b></td>
-                        <td>${p.teamAbbrev}</td><td>${p.gamesPlayed}</td><td>${p.wins}</td><td>${p.losses}</td>
-                        <td>${(p.savePctg * 100).toFixed(1)}%</td>
-                    </tr>`;
-                });
+                html += `<th>PJ</th><th>V</th><th>D</th><th>%ARR</th><th style="text-align:center">MOY</th></tr>`;
             }
+
+            let count = 0;
+            rows.forEach((row, index) => {
+                const cols = row.querySelectorAll('td');
+                // On saute l'entête et on s'assure qu'il y a assez de colonnes
+                if (cols.length > 5 && index > 0 && count < 50) {
+                    count++;
+                    const player = cols[1]?.innerText.trim() || "Inconnu";
+                    const team = cols[2]?.innerText.trim() || "-";
+                    
+                    if(type === 'skaters') {
+                        html += `<tr>
+                            <td>${cols[0].innerText}</td>
+                            <td><b>${player}</b></td>
+                            <td>${team}</td>
+                            <td>${cols[3].innerText}</td>
+                            <td>${cols[4].innerText}</td>
+                            <td>${cols[5].innerText}</td>
+                            <td style="text-align:center; font-weight:bold; color:var(--pnhl)">${cols[6].innerText}</td>
+                        </tr>`;
+                    } else {
+                        // Pour les gardiens, on ajuste les colonnes selon la structure de Marqueur
+                        html += `<tr>
+                            <td>${cols[0].innerText}</td>
+                            <td><b>${player}</b></td>
+                            <td>${team}</td>
+                            <td>${cols[3].innerText}</td>
+                            <td>${cols[4].innerText}</td>
+                            <td>${cols[7].innerText}</td>
+                            <td style="text-align:center; font-weight:bold; color:var(--pnhl)">${cols[9].innerText}</td>
+                        </tr>`;
+                    }
+                }
+            });
+
             container.innerHTML = html + "</table>";
 
         } catch (err) {
-            container.innerHTML = `<div style="color:red;">Erreur de connexion NHL. Le pare-feu bloque encore.</div>`;
+            console.error(err);
+            container.innerHTML = `<div style="text-align:center; color:red; padding:30px;">
+                <b>Erreur de lecture sur Marqueur.com</b><br>
+                Le site est peut-être en maintenance ou bloque l'accès temporairement.
+            </div>`;
         }
     }
 
-    window.onload = () => load('skaters');
+    window.onload = () => loadStats('skaters');
 </script>
 
 </body>
