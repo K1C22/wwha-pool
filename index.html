@@ -2,205 +2,74 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PNHL | Administration du Pool</title>
+    <title>PNHL Pool Admin</title>
     <style>
-        /* Design inspiré de ton projet Replit (Aptos & Sports style) */
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;700&display=swap');
-
-        :root {
-            --pnhl-orange: #fc723f;
-            --pnhl-dark: #1a1a1a;
-            --bg-gray: #f4f4f4;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--bg-gray);
-            margin: 0;
-            padding: 20px;
-        }
-
-        header {
-            background: var(--pnhl-dark);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 4px solid var(--pnhl-orange);
-            margin-bottom: 30px;
-        }
-
-        h1 { font-family: 'Bebas Neue', cursive; font-size: 2.5rem; margin: 0; letter-spacing: 2px; }
-
-        .nav-container {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-
-        .tab-btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            background: white;
-            color: var(--pnhl-dark);
-            transition: 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .tab-btn.active {
-            background: var(--pnhl-orange);
-            color: white;
-        }
-
-        .stats-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            min-height: 400px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th {
-            text-align: left;
-            padding: 15px;
-            background: #fafafa;
-            border-bottom: 2px solid #eee;
-            color: #666;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-        }
-
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f1f1f1;
-            font-size: 0.95rem;
-        }
-
-        tr:hover { background: #fff8f5; }
-
-        .team-logo {
-            width: 25px;
-            height: 25px;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-
-        .points-cell {
-            font-weight: bold;
-            color: var(--pnhl-orange);
-            text-align: center;
-        }
-
-        .loader {
-            text-align: center;
-            padding: 50px;
-            font-style: italic;
-            color: #999;
-        }
-
-        .status-badge {
-            font-size: 0.7rem;
-            padding: 4px 10px;
-            border-radius: 20px;
-            background: #4caf50;
-            color: white;
-        }
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+        .stats-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #1a1a1a; color: white; padding: 10px; text-align: left; }
+        td { padding: 10px; border-bottom: 1px solid #ddd; }
+        .pts { font-weight: bold; color: #fc723f; }
+        .btn-group { margin-bottom: 20px; }
+        button { padding: 10px 20px; cursor: pointer; border: none; background: #ddd; }
+        button.active { background: #fc723f; color: white; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>PNHL <span style="color: var(--pnhl-orange)">Pool Admin</span></h1>
-    <div class="status-badge">API NHL Connectée</div>
-</header>
+    <h1>PNHL Statistics</h1>
+    
+    <div class="btn-group">
+        <button id="btn-skaters" class="active" onclick="fetchNHL('skaters')">Joueurs</button>
+        <button id="btn-goalies" onclick="fetchNHL('goalies')">Gardiens</button>
+    </div>
 
-<div class="nav-container">
-    <button id="btn-skaters" class="tab-btn active" onclick="loadData('skaters')">Attaquants / Défenseurs</button>
-    <button id="btn-goalies" class="tab-btn" onclick="loadData('goalies')">Gardiens</button>
-</div>
+    <div class="stats-card">
+        <table id="table">
+            <thead><tr id="thead"></tr></thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </div>
 
-<div class="stats-container" id="main-content">
-    <div class="loader">Sélectionnez une catégorie pour charger les statistiques en direct...</div>
-</div>
+    <script>
+        // REMPLACE CETTE URL PAR LA TIENNE
+        const VERCEL_API_URL = "https://pnhl-api-tau.vercel.app/api/stats";
 
-<script>
-    // --- CONFIGURATION ---
-    // Remplace par l'URL de ton projet Vercel (ex: https://pnhl-api.vercel.app)
-    const VERCEL_API_URL = "https://pnhl-api-git-main-k1c22s-projects.vercel.app";
+        async function fetchNHL(type) {
+            document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${type}`).classList.add('active');
+            
+            const tbody = document.getElementById('tbody');
+            const thead = document.getElementById('thead');
+            tbody.innerHTML = "Chargement...";
 
-    async function loadData(type) {
-        const content = document.getElementById('main-content');
-        
-        // Mise à jour visuelle des boutons
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(`btn-${type}`).classList.add('active');
+            try {
+                const res = await fetch(`${VERCEL_API_URL}?type=${type}`);
+                const data = await res.json();
 
-        content.innerHTML = '<div class="loader">Récupération des données NHL via Vercel...</div>';
+                // Entêtes
+                thead.innerHTML = type === 'skaters' 
+                    ? '<th>Nom</th><th>Équipe</th><th>PJ</th><th>B</th><th>A</th><th>PTS</th>'
+                    : '<th>Nom</th><th>Équipe</th><th>PJ</th><th>V</th><th>D</th><th>MOY</th>';
 
-        try {
-            const response = await fetch(`${VERCEL_API_URL}?type=${type}`);
-            const players = await response.json();
-
-            if (!players || players.error) throw new Error("Erreur API");
-
-            let html = `<table>
-                <thead>
+                // Lignes
+                tbody.innerHTML = data.slice(0, 50).map(p => `
                     <tr>
-                        <th>Rang</th>
-                        <th>Joueur</th>
-                        <th>Équipe</th>
-                        ${type === 'skaters' ? '<th>PJ</th><th>B</th><th>A</th><th style="text-align:center">PTS</th>' : '<th>PJ</th><th>V</th><th>D</th><th>%ARR</th><th style="text-align:center">MOY</th>'}
+                        <td>${p.skaterFullName || p.goalieFullName}</td>
+                        <td>${p.teamAbbrev}</td>
+                        <td>${p.gamesPlayed}</td>
+                        ${type === 'skaters' 
+                            ? `<td>${p.goals}</td><td>${p.assists}</td><td class="pts">${p.points}</td>`
+                            : `<td>${p.wins}</td><td>${p.losses}</td><td class="pts">${p.goalsAgainstAvg.toFixed(2)}</td>`
+                        }
                     </tr>
-                </thead>
-                <tbody>`;
-
-            players.slice(0, 50).forEach((p, index) => {
-                const teamLogo = `https://assets.nhle.com/mktg/utils/logos/teams-dark/${p.teamAbbrev || p.team}.svg`;
-                
-                html += `<tr>
-                    <td>${index + 1}</td>
-                    <td><b>${p.skaterFullName || p.goalieFullName || p.name}</b></td>
-                    <td><img src="${teamLogo}" class="team-logo" onerror="this.style.display='none'">${p.teamAbbrev || p.team}</td>
-                    <td>${p.gamesPlayed || p.pj}</td>`;
-                
-                if (type === 'skaters') {
-                    html += `<td>${p.goals || p.b}</td><td>${p.assists || p.a}</td><td class="points-cell">${p.points || p.pts}</td>`;
-                } else {
-                    html += `<td>${p.wins || p.v}</td><td>${p.losses || p.d}</td><td>${p.savePctg || p.pct}</td><td class="points-cell">${p.goalsAgainstAvg || p.moy}</td>`;
-                }
-                html += `</tr>`;
-            });
-
-            html += `</tbody></table>`;
-            content.innerHTML = html;
-
-        } catch (error) {
-            content.innerHTML = `
-                <div style="text-align:center; color:red; padding:50px;">
-                    <h3>Erreur de connexion</h3>
-                    <p>Impossible de joindre ton API Vercel. Vérifie que ton projet est bien déployé et que l'URL est correcte.</p>
-                    <small>${error.message}</small>
-                </div>`;
+                `).join('');
+            } catch (err) {
+                tbody.innerHTML = "Erreur de chargement. Vérifie ton URL Vercel.";
+            }
         }
-    }
 
-    // Chargement automatique au démarrage
-    window.onload = () => loadData('skaters');
-</script>
-
+        fetchNHL('skaters');
+    </script>
 </body>
 </html>
